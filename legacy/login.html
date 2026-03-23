@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Gestion Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a', 950: '#172554' },
+                        secondary: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' },
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'slide-in-right': 'slideInRight 0.8s ease-out forwards',
+                        'fade-in': 'fadeIn 1s ease-out forwards',
+                        'scale-up': 'scaleUp 10s ease-in-out infinite alternate',
+                        'shine': 'shine 1.5s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(30px)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        scaleUp: {
+                            '0%': { transform: 'scale(1)' },
+                            '100%': { transform: 'scale(1.1)' },
+                        },
+                        shine: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 10px;
+        }
+
+        .promo-gradient {
+            background: radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
+        }
+
+        .login-input {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .login-input:focus {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .slider-item {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .slider-item.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+    </style>
+</head>
+
+<body class="h-full bg-secondary-950 font-sans overflow-hidden">
+
+    <div class="flex h-full w-full">
+
+        <!-- LEFT SIDE: PREMIUM PROMO SLIDER (Desktop Only) -->
+        <div class="hidden lg:flex lg:w-[60%] relative overflow-hidden bg-secondary-950 border-r border-white/5">
+            <!-- Dynamic Mesh Background -->
+            <div class="absolute inset-0 z-0 opacity-40">
+                <div
+                    class="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-primary-600/20 rounded-full blur-[120px] animate-pulse">
+                </div>
+                <div class="absolute bottom-[-10%] right-[-10%] w-[80%] h-[80%] bg-purple-600/20 rounded-full blur-[120px] animate-pulse"
+                    style="animation-delay: 2s;"></div>
+            </div>
+
+            <!-- Slider Pages -->
+            <div id="promoSlider" class="relative z-10 w-full h-full">
+
+                <!-- Slide 1: SaaS Management -->
+                <div class="slider-item active h-full w-full relative">
+                    <img src="saas_management_dashboard_promo_1770552527786.png"
+                        class="absolute inset-0 w-full h-full object-cover opacity-40 animate-scale-up"
+                        alt="SaaS Dashboard">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-secondary-950 via-secondary-950/20 to-transparent">
+                    </div>
+                    <div class="absolute inset-0 flex flex-col justify-center px-20 space-y-6">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 bg-primary-500/10 border border-primary-500/20 rounded-full text-primary-400 text-xs font-bold tracking-widest uppercase animate-fade-in">
+                            <span class="w-1.5 h-1.5 bg-primary-500 rounded-full animate-ping"></span>
+                            Gestion Nouvelle Génération
+                        </div>
+                        <h2
+                            class="text-6xl font-display font-extrabold text-white leading-tight animate-slide-in-right">
+                            Pilotez votre <span class="text-primary-500 text-glow">Business</span><br>avec intelligence.
+                        </h2>
+                        <p class="text-xl text-secondary-400 max-w-lg leading-relaxed animate-fade-in"
+                            style="animation-delay: 0.4s;">
+                            Des analyses en temps réel, une gestion de stock automatisée et une interface intuitive
+                            conçue pour la productivité.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Slide 2: Innovation -->
+                <div class="slider-item h-full w-full relative">
+                    <img src="business_innovation_promo_1770552396438.png"
+                        class="absolute inset-0 w-full h-full object-cover opacity-40 animate-scale-up"
+                        alt="Innovation">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-secondary-950 via-secondary-950/20 to-transparent">
+                    </div>
+                    <div class="absolute inset-0 flex flex-col justify-center px-20 space-y-6">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-400 text-xs font-bold tracking-widest uppercase">
+                            <span class="w-1.5 h-1.5 bg-purple-500 rounded-full animate-ping"></span>
+                            Innovation Continue
+                        </div>
+                        <h2 class="text-6xl font-display font-extrabold text-white leading-tight">
+                            L'excellence au service de votre <span class="text-purple-500 text-glow">Croissance</span>.
+                        </h2>
+                        <p class="text-xl text-secondary-400 max-w-lg leading-relaxed">
+                            Outillez votre équipe avec les meilleures technologies pour transformer vos opérations
+                            quotidiennes en leviers de succès.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Slide 3: Mobility/Cloud -->
+                <div class="slider-item h-full w-full relative">
+                    <img src="modern_tech_boutique_1_1770552906975.png"
+                        class="absolute inset-0 w-full h-full object-cover opacity-40 animate-scale-up" alt="Tech">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-secondary-950 via-secondary-950/20 to-transparent">
+                    </div>
+                    <div class="absolute inset-0 flex flex-col justify-center px-20 space-y-6">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 border border-teal-500/20 rounded-full text-teal-400 text-xs font-bold tracking-widest uppercase">
+                            <span class="w-1.5 h-1.5 bg-teal-500 rounded-full animate-ping"></span>
+                            Cloud & Mobilité
+                        </div>
+                        <h2 class="text-6xl font-display font-extrabold text-white leading-tight">
+                            Accédez à vos données <span class="text-teal-400 text-glow">Partout</span>, à tout moment.
+                        </h2>
+                        <p class="text-xl text-secondary-400 max-w-lg leading-relaxed">
+                            Une synchronisation fluide entre tous vos dépôts et points de vente, accessible depuis
+                            n'importe quel appareil.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slider Dots -->
+            <div class="absolute bottom-16 left-20 z-20 flex gap-3">
+                <button onclick="currentSlide(0)"
+                    class="slider-dot w-12 h-1.5 rounded-full bg-primary-600 transition-all duration-300"></button>
+                <button onclick="currentSlide(1)"
+                    class="slider-dot w-4 h-1.5 rounded-full bg-white/20 hover:bg-white/40 transition-all duration-300"></button>
+                <button onclick="currentSlide(2)"
+                    class="slider-dot w-4 h-1.5 rounded-full bg-white/20 hover:bg-white/40 transition-all duration-300"></button>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: DARK LOGIN FORM -->
+        <div class="w-full lg:w-[40%] flex items-center justify-center p-8 bg-secondary-950 relative overflow-hidden">
+
+            <!-- Mobile Background Blobs -->
+            <div class="lg:hidden absolute inset-0 z-0 opacity-20">
+                <div class="absolute top-0 left-0 w-64 h-64 bg-primary-600 rounded-full blur-[80px]"></div>
+                <div class="absolute bottom-0 right-0 w-64 h-64 bg-purple-600 rounded-full blur-[80px]"></div>
+            </div>
+
+            <div class="w-full max-w-md relative z-10 animate-fade-in">
+                <!-- Branding -->
+                <div class="flex flex-col items-center mb-12">
+                    <div class="relative group mb-4">
+                        <div
+                            class="absolute -inset-1 bg-gradient-to-r from-primary-600 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000">
+                        </div>
+                        <div
+                            class="relative w-16 h-16 bg-secondary-900 rounded-2xl flex items-center justify-center text-white text-3xl shadow-2xl border border-white/10 animate-float">
+                            <i class="fas fa-cube text-primary-500"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-3xl font-display font-extrabold text-white tracking-tight">GestionPro</h1>
+                    <p class="text-primary-500 text-xs font-bold tracking-[0.3em] uppercase mt-2">Gestion Intelligence
+                    </p>
+                </div>
+
+                <div class="mb-10 text-center">
+                    <h2 class="text-white text-xl font-medium">Connectez-vous pour accéder à votre espace.</h2>
+                </div>
+
+                <!-- Login Form -->
+                <form action="index.html" class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-secondary-400 uppercase tracking-widest ml-1">Adresse
+                            Email</label>
+                        <div class="relative">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-secondary-500">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <input type="email" value="admin@gestionpro.com"
+                                class="login-input w-full pl-12 pr-4 py-4 rounded-2xl text-white placeholder-secondary-500 outline-none"
+                                placeholder="name@company.com">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-secondary-400 uppercase tracking-widest ml-1">Mot de
+                            passe</label>
+                        <div class="relative">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-secondary-500">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <input type="password" placeholder="••••••••"
+                                class="login-input w-full pl-12 pr-12 py-4 rounded-2xl text-white placeholder-secondary-500 outline-none">
+                            <button type="button" onclick="togglePass(this)"
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary-500 hover:text-primary-400 transition-colors">
+                                <i class="fas fa-eye text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center cursor-pointer group">
+                            <div class="relative">
+                                <input type="checkbox" checked class="peer sr-only">
+                                <div
+                                    class="w-5 h-5 border-2 border-secondary-700 rounded-lg group-hover:border-primary-500 transition-all peer-checked:bg-primary-600 peer-checked:border-primary-600 flex items-center justify-center">
+                                    <i
+                                        class="fas fa-check text-[10px] text-white opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                                </div>
+                            </div>
+                            <span class="ml-3 text-sm text-secondary-400 group-hover:text-white transition-colors">Se
+                                souvenir de moi</span>
+                        </label>
+                        <a href="#"
+                            class="text-sm font-bold text-primary-500 hover:text-primary-400 transition-colors hover:underline">Mot
+                            de passe oublié ?</a>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full relative group overflow-hidden bg-primary-600 hover:bg-primary-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-primary-900/40 transition-all transform hover:-translate-y-1 active:translate-y-0 active:scale-[0.98]">
+                        <div
+                            class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shine">
+                        </div>
+                        <span class="relative flex items-center justify-center gap-3 tracking-widest uppercase">
+                            Se connecter
+                            <i class="fas fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                        </span>
+                    </button>
+                </form>
+
+                <div class="mt-12 text-center border-t border-white/5 pt-10">
+                    <p class="text-[10px] text-secondary-600 dark:text-gray-600 uppercase tracking-[0.3em] font-black">
+                        © 2026 GestionPro. Tous droits réservés.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer Glow -->
+            <div
+                class="absolute bottom-[-10%] left-1/2 -translate-x-1/2 w-[80%] h-32 bg-primary-600/10 blur-[60px] rounded-full">
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slider-item');
+        const dots = document.querySelectorAll('.slider-dot');
+
+        function showSlides() {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                dots[i].classList.remove('bg-primary-600', 'w-12');
+                dots[i].classList.add('bg-white/20', 'w-4');
+            });
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1 }
+            slides[slideIndex - 1].classList.add('active');
+            dots[slideIndex - 1].classList.add('bg-primary-600', 'w-12');
+            dots[slideIndex - 1].classList.remove('bg-white/20', 'w-4');
+            setTimeout(showSlides, 6000);
+        }
+
+        function currentSlide(n) {
+            slideIndex = n;
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                dots[i].classList.remove('bg-primary-600', 'w-12');
+                dots[i].classList.add('bg-white/20', 'w-4');
+            });
+            slides[n].classList.add('active');
+            dots[n].classList.add('bg-primary-600', 'w-12');
+            dots[n].classList.remove('bg-white/20', 'w-4');
+        }
+
+        if (slides.length > 0) {
+            // Uncomment the line below to enable auto-sliding
+            // showSlides();
+        }
+
+        function togglePass(btn) {
+            const input = btn.previousElementSibling;
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Auto-slide init
+        let autoSlideTimer;
+        function resetTimer() {
+            clearInterval(autoSlideTimer);
+            autoSlideTimer = setInterval(() => {
+                slideIndex = (slideIndex + 1) % slides.length;
+                currentSlide(slideIndex);
+            }, 6000);
+        }
+        resetTimer();
+    </script>
+</body>
+
+</html>

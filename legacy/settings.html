@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres - Gestion Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- App CSS -->
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a', 950: '#172554' },
+                        secondary: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' },
+                        gray: { 50: '#f3f5f8', 100: '#eef2f6', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' },
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-gray-50 text-slate-800 font-sans antialiased h-screen flex overflow-hidden selection:bg-primary-100 selection:text-primary-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebarOverlay"
+        class="fixed inset-0 bg-secondary-900/50 backdrop-blur-sm z-40 hidden lg:hidden opacity-0 transition-opacity duration-300">
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+        class="bg-secondary-900 text-white w-72 flex-shrink-0 fixed inset-y-0 left-0 transform -translate-x-full lg:relative lg:translate-x-0 z-50 flex flex-col border-r border-secondary-800 shadow-2xl transition-transform duration-300 ease-in-out">
+        <!-- Brand -->
+        <div class="h-20 flex items-center px-8 border-b border-secondary-800/50">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary-500/30">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-xl tracking-tight leading-none">Gestion<span
+                            class="text-primary-400">Pro</span></h1>
+                    <p class="text-xs text-secondary-500 font-medium">SaaS Admin v2.0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu -->
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
+            <p class="px-4 text-xs font-bold text-secondary-500 uppercase tracking-widest mb-3 mt-2">Vue d'ensemble</p>
+
+            <a href="index.html"
+                class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                <i class="fas fa-home w-6 text-center mr-3 group-hover:text-primary-400 transition-colors"></i>
+                <span class="font-medium">Tableau de bord</span>
+            </a>
+
+            <div class="mt-8 mb-3">
+                <p class="px-4 text-xs font-bold text-secondary-500 uppercase tracking-widest mb-3">Gestion Commerciale
+                </p>
+                <a href="ventes.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i
+                        class="fas fa-shopping-cart w-6 text-center mr-3 group-hover:text-emerald-400 transition-colors"></i>
+                    <span class="font-medium">Ventes</span>
+                </a>
+                <a href="produits.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i class="fas fa-box w-6 text-center mr-3 group-hover:text-amber-400 transition-colors"></i>
+                    <span class="font-medium">Produits</span>
+                </a>
+                <a href="depots.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i class="fas fa-warehouse w-6 text-center mr-3 group-hover:text-indigo-400 transition-colors"></i>
+                    <span class="font-medium">Stocks / Dépôts</span>
+                </a>
+                <a href="approvisionnement.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i class="fas fa-truck w-6 text-center mr-3 group-hover:text-sky-400 transition-colors"></i>
+                    <span class="font-medium">Approvisionnement</span>
+                </a>
+            </div>
+
+            <div class="mt-8 mb-3">
+                <p class="px-4 text-xs font-bold text-secondary-500 uppercase tracking-widest mb-3">Finances & Tiers</p>
+                <a href="dettes.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i
+                        class="fas fa-hand-holding-usd w-6 text-center mr-3 group-hover:text-red-400 transition-colors"></i>
+                    <span class="font-medium">Créances & Dettes</span>
+                </a>
+                <a href="clients.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i class="fas fa-users w-6 text-center mr-3 group-hover:text-purple-400 transition-colors"></i>
+                    <span class="font-medium">Clients</span>
+                </a>
+                <a href="fournisseurs.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i class="fas fa-building w-6 text-center mr-3 group-hover:text-cyan-400 transition-colors"></i>
+                    <span class="font-medium">Fournisseurs</span>
+                </a>
+                <a href="frais.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i class="fas fa-wallet w-6 text-center mr-3 group-hover:text-rose-400 transition-colors"></i>
+                    <span class="font-medium">Dépenses</span>
+                </a>
+            </div>
+
+            <div class="mt-8 mb-3">
+                <p class="px-4 text-xs font-bold text-secondary-500 uppercase tracking-widest mb-3">Administration</p>
+                <a href="utilisateurs.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i class="fas fa-user-shield w-6 text-center mr-3 group-hover:text-teal-400 transition-colors"></i>
+                    <span class="font-medium">Utilisateurs</span>
+                </a>
+                <!-- <a href="components.html"
+                    class="flex items-center px-4 py-3 rounded-xl text-secondary-300 hover:text-white hover:bg-secondary-800 transition-all group">
+                    <i class="fas fa-swatchbook w-6 text-center mr-3 group-hover:text-pink-400 transition-colors"></i>
+                    <span class="font-medium">Design System</span>
+                </a> -->
+                <a href="settings.html"
+                    class="sidebar-active-link flex items-center px-4 py-3 rounded-xl text-white font-medium transition-all group relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-primary-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <i
+                        class="fas fa-cog w-6 text-center mr-3 text-gray-400 group-hover:scale-110 transition-transform"></i>
+                    <span class="relative z-10">Paramètres</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-secondary-800/50 bg-secondary-900/50">
+            <div
+                class="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-secondary-800 transition-all cursor-pointer group">
+                <div class="relative">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold shadow-md transform group-hover:scale-105 transition-transform">
+                        JD
+                    </div>
+                    <span
+                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-secondary-900 rounded-full"></span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white truncate group-hover:text-primary-200 transition-colors">
+                        Jean Dupont</p>
+                    <p class="text-xs text-secondary-400 truncate">Administrateur</p>
+                </div>
+                <button onclick="logout()"
+                    class="text-secondary-400 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-secondary-900/50"
+                    title="Déconnexion">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div
+        class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50/50 dark:bg-gray-900 transition-colors duration-300">
+
+        <!-- HEADER -->
+        <header
+            class="h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 lg:px-10 z-20 flex-shrink-0 sticky top-0 transition-colors duration-300">
+            <!-- Left: Mobile Toggle + Breadcrumb -->
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()"
+                    class="lg:hidden p-2 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="hidden sm:block">
+                    <nav class="flex text-sm text-secondary-500 dark:text-secondary-400">
+                        <span
+                            class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer">GestionPro</span>
+                        <span class="mx-2">/</span>
+                        <span class="font-medium text-secondary-900 dark:text-gray-100">Paramètres</span>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button onclick="Theme.toggle()"
+                    class="p-2.5 text-secondary-500 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-gray-700 dark:hover:text-yellow-400 hover:text-yellow-500 rounded-xl transition-all"
+                    title="Changer le thème">
+                    <i class="fas fa-sun hidden dark:block"></i>
+                    <i class="fas fa-moon dark:hidden"></i>
+                </button>
+
+                <!-- Search -->
+                <div class="hidden md:block relative group">
+                    <i
+                        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 group-focus-within:text-primary-500 transition-colors"></i>
+                    <input type="text" placeholder="Rechercher..."
+                        class="pl-10 pr-4 py-2.5 w-64 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50/50 dark:bg-gray-800/50 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-primary-100 focus:border-primary-500 transition-all outline-none">
+                </div>
+
+                <!-- Notifications -->
+                <button
+                    class="relative p-2.5 text-secondary-500 dark:text-secondary-400 hover:bg-secondary-50 dark:hover:bg-gray-700 hover:text-primary-600 rounded-xl transition-all">
+                    <i class="far fa-bell text-xl"></i>
+                    <span
+                        class="absolute top-2 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 lg:p-10 custom-scrollbar">
+
+            <div class="max-w-4xl mx-auto">
+                <!-- Page Header -->
+                <div class="mb-8 animate-fade-in">
+                    <h2 class="text-2xl font-display font-bold text-secondary-900 dark:text-white">Paramètres</h2>
+                    <p class="text-secondary-500 dark:text-gray-400 mt-1">Gérez les préférences de l'application et de
+                        votre compte.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Settings Sidebar -->
+                    <div class="md:col-span-1 animate-slide-in-up">
+                        <div
+                            class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-secondary-200 dark:border-gray-700 overflow-hidden">
+                            <nav class="flex flex-col" id="settings-nav">
+                                <button onclick="switchTab('general')" id="nav-general"
+                                    class="px-4 py-3 text-sm font-medium text-left bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 border-l-4 border-primary-600 transition-colors">
+                                    <i class="fas fa-sliders-h w-6 text-center mr-2"></i> Général
+                                </button>
+                                <button onclick="switchTab('appearance')" id="nav-appearance"
+                                    class="px-4 py-3 text-sm font-medium text-left text-secondary-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-secondary-900 dark:hover:text-white transition-colors border-l-4 border-transparent">
+                                    <i class="fas fa-paint-brush w-6 text-center mr-2"></i> Apparence
+                                </button>
+                                <button onclick="switchTab('profile')" id="nav-profile"
+                                    class="px-4 py-3 text-sm font-medium text-left text-secondary-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-secondary-900 dark:hover:text-white transition-colors border-l-4 border-transparent">
+                                    <i class="fas fa-user-circle w-6 text-center mr-2"></i> Profil
+                                </button>
+                                <button onclick="switchTab('security')" id="nav-security"
+                                    class="px-4 py-3 text-sm font-medium text-left text-secondary-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-secondary-900 dark:hover:text-white transition-colors border-l-4 border-transparent">
+                                    <i class="fas fa-lock w-6 text-center mr-2"></i> Sécurité
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Settings Content -->
+                    <div class="md:col-span-2 space-y-6 animate-slide-in-up" style="animation-delay: 100ms;">
+
+                        <!-- General Settings -->
+                        <div id="tab-general" class="settings-tab">
+                            <div
+                                class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-secondary-200 dark:border-gray-700 p-6">
+                                <h3
+                                    class="text-lg font-bold text-secondary-900 dark:text-white mb-4 pb-4 border-b border-secondary-100 dark:border-gray-700">
+                                    Informations de l'entreprise
+
+                                    <div class="mb-6 flex items-center gap-6">
+                                        <div class="relative group">
+                                            <div
+                                                class="w-24 h-24 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-600 group-hover:border-primary-500 transition-colors">
+                                                <img id="logoPreview" src="" alt="Logo"
+                                                    class="w-full h-full object-cover hidden">
+                                                <div id="logoPlaceholder"
+                                                    class="text-center p-2 text-gray-400 group-hover:text-primary-500 transition-colors">
+                                                    <i class="fas fa-image text-2xl mb-1"></i>
+                                                    <div class="text-[10px] font-medium">Logo</div>
+                                                </div>
+                                            </div>
+                                            <label
+                                                class="absolute inset-0 cursor-pointer flex items-center justify-center opacity-0 bg-black/50 text-white rounded-xl transition-opacity group-hover:opacity-100">
+                                                <span class="text-xs font-medium">Modifier</span>
+                                                <input type="file" class="hidden" accept="image/*"
+                                                    onchange="const reader = new FileReader(); reader.onload = (e) => { document.getElementById('logoPreview').src = e.target.result; document.getElementById('logoPreview').classList.remove('hidden'); document.getElementById('logoPlaceholder').classList.add('hidden'); }; reader.readAsDataURL(this.files[0]);">
+                                            </label>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-secondary-900 dark:text-white">Logo de
+                                                l'entreprise</h4>
+                                            <p class="text-xs text-secondary-500 dark:text-gray-400 mt-1">Format
+                                                recommandé: PNG ou JPG, max 2MB. Ce logo apparaîtra sur vos factures.
+                                            </p>
+                                        </div>
+                                    </div>
+
+
+                                    <form
+                                        onsubmit="event.preventDefault(); Toast.show('Paramètres enregistrés avec succès', 'success');"
+                                        class="space-y-4">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-medium text-secondary-700 dark:text-gray-300 mb-1">Nom
+                                                    de l'entreprise</label>
+                                                <input type="text" value="Ma Boutique Pro"
+                                                    class="w-full px-3 py-2 border border-secondary-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-medium text-secondary-700 dark:text-gray-300 mb-1">Email
+                                                    de contact</label>
+                                                <input type="email" value="contact@boutique.com"
+                                                    class="w-full px-3 py-2 border border-secondary-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-secondary-700 dark:text-gray-300 mb-1">Adresse</label>
+                                            <input type="text" value="123 Rue du Commerce, Abidjan"
+                                                class="w-full px-3 py-2 border border-secondary-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-medium text-secondary-700 dark:text-gray-300 mb-1">Devise</label>
+                                                <select
+                                                    class="w-full px-3 py-2 border border-secondary-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-gray-700">
+                                                    <option value="XOF">Franc CFA (XOF)</option>
+                                                    <option value="EUR">Euro (€)</option>
+                                                    <option value="USD">Dollar ($)</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-sm font-medium text-secondary-700 dark:text-gray-300 mb-1">Fuseau
+                                                    horaire</label>
+                                                <select
+                                                    class="w-full px-3 py-2 border border-secondary-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-gray-700">
+                                                    <option value="GMT">GMT</option>
+                                                    <option value="GMT+1">GMT+1</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="pt-2 flex justify-end">
+                                            <button type="submit"
+                                                class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/30">Enregistrer</button>
+                                        </div>
+                                    </form>
+                            </div>
+                        </div>
+
+                        <!-- Appearance -->
+                        <div id="tab-appearance" class="settings-tab hidden">
+                            <div
+                                class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-secondary-200 dark:border-gray-700 p-6">
+                                <h3
+                                    class="text-lg font-bold text-secondary-900 dark:text-white mb-4 pb-4 border-b border-secondary-100 dark:border-gray-700">
+                                    Apparence</h3>
+
+                                <div class="space-y-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-sm font-medium text-secondary-900 dark:text-white">Mode
+                                                Sombre</h4>
+                                            <p class="text-xs text-secondary-500 dark:text-gray-400">Activer le thème
+                                                sombre pour l'application</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="darkModeToggle" class="sr-only peer"
+                                                onchange="Theme.toggle()">
+                                            <div
+                                                class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-sm font-medium text-secondary-900 dark:text-white">
+                                                Animations réduites</h4>
+                                            <p class="text-xs text-secondary-500 dark:text-gray-400">Désactiver les
+                                                animations pour plus de performance</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer">
+                                            <div
+                                                class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profile -->
+                        <div id="tab-profile" class="settings-tab hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-lg font-bold text-secondary-900 dark:text-white">Profils Utilisateurs
+                                </h3>
+                                <button onclick="openModal('addUserModal')"
+                                    class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-all shadow-sm">
+                                    <i class="fas fa-plus mr-2"></i> Ajouter
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr
+                                            class="bg-gray-50 dark:bg-gray-900/50 text-xs uppercase font-semibold text-secondary-500 dark:text-gray-400 border-b border-secondary-100 dark:border-gray-700">
+                                            <th class="px-4 py-3">Utilisateur</th>
+                                            <th class="px-4 py-3">Rôle</th>
+                                            <th class="px-4 py-3">Email</th>
+                                            <th class="px-4 py-3 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-secondary-100 dark:divide-gray-700 text-sm">
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                            <td class="px-4 py-3" data-value="Jean Dupont">
+                                                <div class="flex items-center gap-3">
+                                                    <div
+                                                        class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center text-xs font-bold">
+                                                        JD</div>
+                                                    <span class="font-medium text-secondary-900 dark:text-white">Jean
+                                                        Dupont</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-secondary-500 dark:text-gray-400">Administrateur
+                                            </td>
+                                            <td class="px-4 py-3 text-secondary-500 dark:text-gray-400">
+                                                jean.dupont@boutique.com</td>
+                                            <td class="px-4 py-3 text-right">
+                                                <button onclick="editRow(this, 'addUserModal')"
+                                                    class="text-primary-600 hover:text-primary-800 dark:hover:text-primary-400 font-medium text-xs transition-colors">Éditer</button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                            <td class="px-4 py-3" data-value="Moussa Koné">
+                                                <div class="flex items-center gap-3">
+                                                    <div
+                                                        class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs font-bold">
+                                                        MK</div>
+                                                    <span class="font-medium text-secondary-900 dark:text-white">Moussa
+                                                        Koné</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-secondary-500 dark:text-gray-400">Caissier</td>
+                                            <td class="px-4 py-3 text-secondary-500 dark:text-gray-400">
+                                                moussa.kone@boutique.com</td>
+                                            <td class="px-4 py-3 text-right">
+                                                <div class="flex justify-end gap-3">
+                                                    <button onclick="editRow(this, 'addUserModal')"
+                                                        class="text-primary-600 hover:text-primary-800 dark:hover:text-primary-400 font-medium text-xs transition-colors">Éditer</button>
+                                                    <button onclick="confirmDelete(this)"
+                                                        class="text-red-500 hover:text-red-700 dark:hover:text-red-400 font-medium text-xs transition-colors">Supprimer</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Security (Danger Zone) -->
+                        <div id="tab-security" class="settings-tab hidden">
+                            <div
+                                class="bg-red-50 dark:bg-red-900/10 rounded-xl shadow-sm border border-red-100 dark:border-red-900/30 p-6">
+                                <h3
+                                    class="text-lg font-bold text-red-700 dark:text-red-400 mb-4 pb-4 border-b border-red-200 dark:border-red-900/30">
+                                    Zone de danger</h3>
+
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-red-900 dark:text-red-300">Réinitialiser les
+                                            données</h4>
+                                        <p class="text-xs text-red-600 dark:text-red-400">Cette action est irréversible.
+                                            Toutes les données seront effacées.</p>
+                                    </div>
+                                    <button
+                                        onclick="confirm('Êtes-vous sûr ?') && Toast.show('Action annulée', 'error')"
+                                        class="px-4 py-2 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-600 hover:text-white dark:hover:bg-red-900/50 transition-colors">Réinitialiser</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- APP SCRIPT -->
+    <script src="assets/js/ui.js"></script>
+    <script>
+        // Settings Tabs Logic
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.settings-tab').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+
+            // Show selected tab
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            // Reset nav styles
+            document.querySelectorAll('#settings-nav button').forEach(btn => {
+                btn.classList.remove('bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-700', 'dark:text-primary-400', 'border-primary-600');
+                btn.classList.add('text-secondary-600', 'dark:text-gray-400', 'border-transparent');
+            });
+
+            // Highlight active nav
+            const activeBtn = document.getElementById('nav-' + tabId);
+            activeBtn.classList.remove('text-secondary-600', 'dark:text-gray-400', 'border-transparent');
+            activeBtn.classList.add('bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-700', 'dark:text-primary-400', 'border-primary-600');
+        }
+
+        // Initialize Dark Mode Toggle State
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (document.documentElement.classList.contains('dark')) {
+                darkModeToggle.checked = true;
+            }
+        });
+    </script>
+</body>
+
+</html>
