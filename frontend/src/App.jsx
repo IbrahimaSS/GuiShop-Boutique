@@ -32,9 +32,58 @@ const Layout = ({ toggleDarkMode, darkMode }) => {
   );
 };
 
+import { io } from 'socket.io-client';
+import { useToast } from './context/ToastContext';
+
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" replace />;
+};
+
+// Composant pour gérer les notifications et le bip
+const NotificationHandler = () => {
+  const toast = useToast();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = user.role === 'admin';
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const socket = io('http://localhost:5000');
+
+    socket.on('notification', (data) => {
+      // 1. Jouer le bip sonore
+      const playBeep = () => {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Son aigu
+          gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+          oscillator.start(audioCtx.currentTime);
+          oscillator.stop(audioCtx.currentTime + 0.5);
+        } catch (err) {
+          console.error("Erreur audio:", err);
+        }
+      };
+
+      playBeep();
+
+      // 2. Afficher la notification visuelle
+      toast.info(`${data.title}: ${data.message}`);
+    });
+
+    return () => socket.disconnect();
+  }, [isAdmin, toast]);
+
+  return null;
 };
 
 const App = () => {
@@ -62,6 +111,7 @@ const App = () => {
   return (
     <SettingsProvider>
       <ToastProvider>
+        <NotificationHandler />
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />

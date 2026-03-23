@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Filter, Download, FileText, Printer, Eye, X, Calendar, CheckCircle, Clock, ChevronDown, Loader2, FileCheck } from 'lucide-react';
+import { Search, Filter, Download, FileText, Printer, Eye, X, Calendar, CheckCircle, Clock, ChevronDown, Loader2, FileCheck, Trash2 } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters';
 import { useSettings } from '../context/SettingsContext';
+import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 
 const API_URL = 'http://localhost:5000';
@@ -11,10 +12,15 @@ const Invoices = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const [viewInvoice, setViewInvoice] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const { settings } = useSettings();
+  const toast = useToast();
   const printRef = useRef(null);
+
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = user.role === 'admin';
 
   const fetchInvoices = async () => {
     try {
@@ -25,6 +31,22 @@ const Invoices = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteRequest = (id) => {
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await api.delete(`/invoices/${deleteConfirmId}`);
+      toast.success("Facture supprimée avec succès");
+      setDeleteConfirmId(null);
+      fetchInvoices();
+    } catch (err) {
+      toast.error("Échec de la suppression");
+      setDeleteConfirmId(null);
     }
   };
 
@@ -92,8 +114,8 @@ const Invoices = () => {
   };
 
   const filtered = invoices.filter(inv => {
-    const matchSearch = inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                       inv.clientName?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchSearch = inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inv.clientName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchStatus = filterStatus === 'all' || inv.status === filterStatus;
     return matchSearch && matchStatus;
   });
@@ -135,7 +157,7 @@ const Invoices = () => {
             ))}
           </div>
         </div>
-        
+
         <div className="overflow-x-auto min-h-[300px]">
           {loading ? (
             <div className="p-10 text-center"><Loader2 className="w-10 h-10 text-royal animate-spin mx-auto" /></div>
@@ -174,6 +196,9 @@ const Invoices = () => {
                       <div className="flex items-center justify-end gap-2">
                         <button onClick={() => setViewInvoice(inv)} className="p-2 text-slate-400 hover:text-royal hover:bg-royal/10 rounded-lg transition-colors" title="Aperçu"><Eye className="w-4 h-4" /></button>
                         <button onClick={() => handleDownloadPDF(inv._id)} className="p-2 text-slate-400 hover:text-gold-dark hover:bg-gold/10 rounded-lg transition-colors" title="Télécharger PDF"><Download className="w-4 h-4" /></button>
+                        {isAdmin && (
+                          <button onClick={() => handleDeleteRequest(inv._id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer"><Trash2 className="w-4 h-4" /></button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -184,6 +209,27 @@ const Invoices = () => {
         </div>
       </div>
 
+      {/* Modal Confirmation de Suppression */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in transition-all" onClick={() => setDeleteConfirmId(null)}>
+          <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] w-full max-w-sm shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden transform" onClick={(e) => e.stopPropagation()}>
+            <div className="p-10 text-center space-y-6">
+              <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-3xl flex items-center justify-center mx-auto ring-8 ring-red-50 dark:ring-red-900/10 rotate-3 transition-transform">
+                <Trash2 className="w-10 h-10 text-red-500" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-jakarta font-extrabold text-slate-800 dark:text-white">Confirmer ?</h3>
+                <p className="text-slate-500 text-sm font-medium">Voulez-vous vraiment supprimer définitivement cette facture ?</p>
+              </div>
+              <div className="flex flex-col gap-2 pt-2">
+                <button onClick={confirmDelete} className="w-full py-4 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-2xl font-black shadow-xl shadow-red-500/20 active:scale-95 transition-all">Supprimer</button>
+                <button onClick={() => setDeleteConfirmId(null)} className="w-full py-4 rounded-2xl font-bold text-slate-500 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 transition-all">Annuler</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal Aperçu Facture */}
       {viewInvoice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in text-left" onClick={() => setViewInvoice(null)}>
@@ -192,7 +238,7 @@ const Invoices = () => {
               <div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <h2 className="text-2xl font-jakarta font-bold flex items-center gap-3">
-                    <FileCheck className="w-7 h-7" /> 
+                    <FileCheck className="w-7 h-7" />
                     {viewInvoice.type === 'invoice' ? 'Facture' : 'Reçu'}
                   </h2>
                   {viewInvoice.status === 'paid' ? (
@@ -213,14 +259,14 @@ const Invoices = () => {
                 <div>
                   <div className="flex items-center gap-3 mb-3">
                     {settings?.logo ? (
-                      <img 
-                        src={`${API_URL}${settings.logo}`} 
-                        alt="Logo" 
+                      <img
+                        src={`${API_URL}${settings.logo}`}
+                        alt="Logo"
                         className="w-14 h-14 rounded-2xl object-cover shadow-lg border-2 border-gold/20"
                         onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                       />
                     ) : null}
-                    <div 
+                    <div
                       className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-dark to-gold flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-gold/20"
                       style={settings?.logo ? { display: 'none' } : {}}
                     >

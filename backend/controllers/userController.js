@@ -36,4 +36,36 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, createUser };
+// @desc    Delete user account
+// @route   DELETE /api/users/:id
+// @access  Private/Admin
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'Compte non trouvé' });
+    }
+
+    // Protection : Ne pas se supprimer soi-même
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ success: false, error: 'Vous ne pouvez pas supprimer votre propre compte admin ici' });
+    }
+
+    await user.deleteOne();
+
+    // Log deletion
+    await logActivity(
+      req.user._id,
+      `Accès révoqué et compte supprimé : @${user.username}`,
+      'User',
+      user._id,
+      req.ip
+    );
+
+    res.json({ success: true, data: {} });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+module.exports = { getUsers, createUser, deleteUser };

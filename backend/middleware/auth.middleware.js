@@ -42,24 +42,18 @@ const protect = async (req, res, next) => {
   }
 };
 
-const admin = (req, res, next) => {
-  console.info(`[DEBUG-AUTH] Tentative d'accès - User: ${req.user ? req.user.email : 'Inconnu'}, Role: ${req.user ? req.user.role : 'Inexistant'}`);
-  
-  const userRole = req.user && req.user.role ? req.user.role : '';
-  const isAllowed = 
-    userRole === 'admin' || 
-    userRole === 'manager' || 
-    userRole.toLowerCase() === 'super-admin' ||
-    userRole.toLowerCase() === 'super admin' ||
-    userRole.toLowerCase() === 'superadmin';
-
-  if (isAllowed) {
-    console.info(`[DEBUG-AUTH] Accès ACCORDÉ pour le rôle: ${userRole}`);
+// Autoriser certains rôles spécifiques
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      console.warn(`[AUTH-DENIED] Tentative d'accès REFUSÉ - User: ${req.user ? req.user.email : 'Inconnu'}, Role: ${req.user ? req.user.role : 'Aucun'}, Requis: [${roles}]`);
+      return res.status(403).json({ 
+        success: false, 
+        error: `Accès refusé : votre rôle (${req.user ? req.user.role : 'inconnu'}) n'autorise pas cette action.` 
+      });
+    }
     next();
-  } else {
-    console.warn(`[DEBUG-AUTH] Accès REFUSÉ - Rôle '${userRole}' non autorisé`);
-    res.status(403).json({ success: false, error: `Accès réservé (Rôle: ${userRole})` });
-  }
+  };
 };
 
-module.exports = { protect, admin };
+module.exports = { protect, authorize };

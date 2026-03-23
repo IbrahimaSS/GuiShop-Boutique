@@ -35,6 +35,17 @@ const createDeposit = async (req, res) => {
       createdBy: req.user.id
     });
 
+    // Envoyer une notification en temps réel si c'est un gestionnaire
+    if (req.user && req.user.role === 'manager') {
+      req.io.emit('notification', {
+        title: 'Nouveau Dépôt',
+        message: `${req.user.fullName} a reçu un objet en dépôt : ${deposit.itemName}`,
+        type: 'deposit',
+        user: req.user.fullName,
+        time: new Date()
+      });
+    }
+
     res.status(201).json({ success: true, data: deposit });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -54,6 +65,17 @@ const retrieveDeposit = async (req, res) => {
     deposit.status = 'retrieved';
     deposit.actualReturnDate = Date.now();
     await deposit.save();
+
+    // Envoyer une notification en temps réel si c'est un gestionnaire
+    if (req.user && req.user.role === 'manager') {
+      req.io.emit('notification', {
+        title: 'Retrait de Dépôt',
+        message: `${req.user.fullName} a marqué comme retiré : ${deposit.itemName}`,
+        type: 'deposit-retrieval',
+        user: req.user.fullName,
+        time: new Date()
+      });
+    }
 
     res.json({ success: true, data: deposit });
   } catch (error) {

@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { getDeposits, createDeposit, retrieveDeposit } = require('../controllers/depositController');
-const { protect } = require('../middleware/auth.middleware');
+const { protect, authorize } = require('../middleware/auth.middleware');
 const upload = require('../middleware/upload.middleware');
 
 router.use(protect);
 
 router.route('/')
-  .get(getDeposits)
-  .post(upload.single('photo'), createDeposit);
+  .get(authorize('admin', 'manager'), getDeposits)
+  .post(authorize('admin', 'manager'), upload.single('photo'), createDeposit);
 
-router.put('/:id/retrieve', retrieveDeposit);
+router.put('/:id/retrieve', authorize('admin', 'manager'), retrieveDeposit);
 
 module.exports = router;

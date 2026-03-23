@@ -106,10 +106,14 @@ const Products = () => {
     setFormData(prev => ({ ...prev, barcode: random }));
   };
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.barcode?.includes(searchTerm)
   );
+
+  // Vérifier le rôle de l'utilisateur
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = user.role === 'admin';
 
   return (
     <div className="space-y-6 animate-fade-in text-left">
@@ -220,10 +224,12 @@ const Products = () => {
                       )}
                     </td>
                     <td className="p-5 pr-8 text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                        <button onClick={() => handleOpenEdit(product)} className="p-2.5 text-slate-400 hover:text-royal hover:bg-royal/10 rounded-xl transition-all"><Edit className="w-4 h-4" /></button>
-                        <button onClick={() => handleDelete(product._id)} className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button>
-                      </div>
+                      {isAdmin && (
+                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                          <button onClick={() => handleOpenEdit(product)} className="p-2.5 text-slate-400 hover:text-royal hover:bg-royal/10 rounded-xl transition-all" title="Modifier"><Edit className="w-4 h-4" /></button>
+                          <button onClick={() => handleDelete(product._id)} className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Supprimer"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -266,7 +272,7 @@ const Products = () => {
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block">Désignation Officielle *</label>
                   <input type="text" name="name" required value={formData.name} onChange={handleInputChange} placeholder="Ex: Tôle Bac Aluminium 0.35mm Bleu" className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 focus:border-royal focus:ring-8 focus:ring-royal/5 rounded-2xl py-4 px-5 outline-none transition-all text-sm font-bold dark:text-white" />
                 </div>
-                
+
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block">Code-barres / UPC</label>
                   <div className="flex gap-2">

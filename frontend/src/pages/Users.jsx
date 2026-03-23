@@ -8,9 +8,10 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
-  
+
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
@@ -26,7 +27,7 @@ const Users = () => {
       const { data } = await api.get('/users');
       setUsers(data.data);
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.error || "Une erreur est survenue lors de la suppression");
     } finally {
       setLoading(false);
     }
@@ -57,19 +58,25 @@ const Users = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Supprimer cet utilisateur ?")) return;
+  const handleDeleteRequest = (id) => {
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = async () => {
     try {
-      await api.delete(`/users/${id}`);
-      toast.success("Accès révoqué et compte supprimé");
+      await api.delete(`/users/${deleteConfirmId}`);
+      toast.success("Accès révoqué et compte supprimé de la base de données");
+      setDeleteConfirmId(null);
       fetchUsers();
     } catch (err) {
-      toast.error("Impossible de supprimer cet utilisateur principal");
+      console.error("[DEBUG] Erreur suppression :", err);
+      toast.error(err.response?.data?.error || "Une erreur est survenue lors de la suppression");
+      setDeleteConfirmId(null);
     }
   };
 
-  const filtered = users.filter(u => 
-    u.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filtered = users.filter(u =>
+    u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -99,7 +106,7 @@ const Users = () => {
             <input type="text" placeholder="Rechercher par nom, email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal focus:ring-2 focus:ring-royal/20 rounded-xl py-2.5 pl-12 pr-4 outline-none transition-all text-sm dark:text-white" />
           </div>
         </div>
-        
+
         <div className="overflow-x-auto min-h-[300px]">
           {loading ? (
             <div className="p-10 text-center"><Loader2 className="w-10 h-10 text-royal animate-spin mx-auto" /></div>
@@ -140,7 +147,7 @@ const Users = () => {
                     </td>
                     <td className="p-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleDelete(user._id)} className="p-2.5 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all shadow-sm"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleDeleteRequest(user._id)} className="p-2.5 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all shadow-sm"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>
@@ -150,6 +157,27 @@ const Users = () => {
           )}
         </div>
       </div>
+
+      {/* Modal Confirmation de Suppression */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in transition-all" onClick={() => setDeleteConfirmId(null)}>
+          <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] w-full max-w-sm shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden transform" onClick={(e) => e.stopPropagation()}>
+            <div className="p-10 text-center space-y-6">
+              <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-3xl flex items-center justify-center mx-auto ring-8 ring-red-50 dark:ring-red-900/10 rotate-3 transition-transform">
+                <Trash2 className="w-10 h-10 text-red-500" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-jakarta font-extrabold text-slate-800 dark:text-white">Confirmer ?</h3>
+                <p className="text-slate-500 text-sm font-medium">Voulez-vous vraiment révoquer cet accès définitivment ?</p>
+              </div>
+              <div className="flex flex-col gap-2 pt-2">
+                <button onClick={confirmDelete} className="w-full py-4 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-2xl font-black shadow-xl shadow-red-500/20 active:scale-95 transition-all">Révoquer l'accès</button>
+                <button onClick={() => setDeleteConfirmId(null)} className="w-full py-4 rounded-2xl font-bold text-slate-500 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 transition-all">Annuler</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Ajout Utilisateur */}
       {showAddModal && (
@@ -169,7 +197,7 @@ const Users = () => {
               </div>
               <button onClick={() => setShowAddModal(false)} className="p-3 hover:bg-white/20 rounded-2xl transition-all active:scale-95"><X className="w-6 h-6 text-white" /></button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="text-left">
               <div className="p-8 space-y-5">
                 <div className="grid grid-cols-2 gap-4">
@@ -183,7 +211,7 @@ const Users = () => {
                   <div><label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Téléphone</label><input type="text" name="phone" value={newUser.phone} onChange={handleInputChange} placeholder="+224..." className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal focus:ring-4 focus:ring-royal/10 rounded-xl py-3.5 px-4 outline-none transition-all text-sm dark:text-white" /></div>
                 </div>
               </div>
-              
+
               <div className="p-6 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 bg-slate-50 dark:bg-slate-900/50">
                 <button type="button" onClick={() => setShowAddModal(false)} className="px-6 py-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-100 transition-colors">Annuler</button>
                 <button type="submit" disabled={isSubmitting} className="px-10 py-3 bg-gradient-to-r from-royal-dark to-royal text-white rounded-xl font-black text-sm shadow-xl shadow-royal/30 active:scale-95 transition-all flex items-center gap-2">

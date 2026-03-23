@@ -27,6 +27,17 @@ const createExpense = async (req, res) => {
       createdBy: req.user.id
     });
 
+    // Envoyer une notification en temps réel si c'est un gestionnaire
+    if (req.user && req.user.role === 'manager') {
+      req.io.emit('notification', {
+        title: 'Nouvelle Dépense',
+        message: `${req.user.fullName} a enregistré une dépense de ${amount.toLocaleString()} GNF : ${title}`,
+        type: 'expense',
+        user: req.user.fullName,
+        time: new Date()
+      });
+    }
+
     res.status(201).json({ success: true, data: expense });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });

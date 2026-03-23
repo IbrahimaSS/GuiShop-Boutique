@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { getActivities } = require('../controllers/activityController');
-const { protect, admin } = require('../middleware/auth.middleware');
+const { protect, authorize } = require('../middleware/auth.middleware');
 
 router.use(protect);
-router.use(admin);
+router.use(authorize('admin')); // Seul l'admin voit les logs
 
 router.get('/', getActivities);
 

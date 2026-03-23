@@ -47,6 +47,17 @@ const createProduct = async (req, res) => {
     // Log Activity
     await logActivity(req.user._id, `Produit créé : ${product.name}`, 'Product', product._id, req.ip);
 
+    // Envoyer une notification en temps réel si c'est un gestionnaire
+    if (req.user && req.user.role === 'manager') {
+      req.io.emit('notification', {
+        title: 'Nouveau Produit',
+        message: `${req.user.fullName} a ajouté : ${product.name}`,
+        type: 'product',
+        user: req.user.fullName,
+        time: new Date()
+      });
+    }
+
     res.status(201).json({ success: true, data: product });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });

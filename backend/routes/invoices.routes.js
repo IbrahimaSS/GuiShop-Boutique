@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { getInvoices, getInvoice, downloadInvoice } = require('../controllers/invoiceController');
-const { protect } = require('../middleware/auth.middleware');
+const { getInvoices, getInvoice, downloadInvoice, deleteInvoice } = require('../controllers/invoiceController');
+const { protect, authorize } = require('../middleware/auth.middleware');
 
 router.use(protect);
 
 router.route('/')
-  .get(getInvoices);
+  .get(authorize('admin', 'manager'), getInvoices);
 
 router.route('/:id')
-  .get(getInvoice);
+  .get(authorize('admin', 'manager'), getInvoice)
+  .delete(authorize('admin'), deleteInvoice);
 
-router.get('/:id/pdf', downloadInvoice);
+router.get('/:id/pdf', authorize('admin', 'manager'), downloadInvoice);
 
 module.exports = router;

@@ -65,7 +65,7 @@ const downloadInvoice = async (req, res) => {
     };
 
     await generatePDF(pdfData, filePath);
-    
+
     res.download(filePath, fileName);
   } catch (error) {
     console.error('[PDF Download Error]:', error);
@@ -73,8 +73,25 @@ const downloadInvoice = async (req, res) => {
   }
 };
 
+// @desc    Delete invoice
+// @route   DELETE /api/invoices/:id
+// @access  Private/Admin
+const deleteInvoice = async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id);
+    if (!invoice) {
+      return res.status(404).json({ success: false, error: 'Document non trouvé' });
+    }
+    await invoice.deleteOne();
+    res.json({ success: true, data: {} });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   getInvoices,
   getInvoice,
-  downloadInvoice
+  downloadInvoice,
+  deleteInvoice
 };

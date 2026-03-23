@@ -18,6 +18,10 @@ const Sidebar = ({ darkMode }) => {
   const { settings } = useSettings();
   const API_URL = 'http://localhost:5000';
   
+  // Récupérer l'utilisateur pour vérifier son rôle
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = user.role === 'admin';
+  
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Produits & Stock', path: '/products', icon: PackageSearch },
@@ -26,8 +30,11 @@ const Sidebar = ({ darkMode }) => {
     { name: 'Dépôts', path: '/deposits', icon: Archive },
     { name: 'Frais & Dépenses', path: '/expenses', icon: Receipt },
     { name: 'Factures & Reçus', path: '/invoices', icon: FileText },
-    { name: 'Utilisateurs', path: '/users', icon: Users },
-    { name: 'Paramètres', path: '/settings', icon: SettingsIcon },
+    // Menus restreints
+    ...(isAdmin ? [
+      { name: 'Utilisateurs', path: '/users', icon: Users },
+      { name: 'Paramètres', path: '/settings', icon: SettingsIcon },
+    ] : []),
   ];
 
   // Obtenir les initiales (ex: "Projet GB" -> "PG")

@@ -7,17 +7,17 @@ const {
   updateProduct,
   deleteProduct
 } = require('../controllers/productController');
-const { protect, admin } = require('../middleware/auth.middleware');
+const { protect, authorize } = require('../middleware/auth.middleware');
 
 router.use(protect);
 
 router.route('/')
-  .get(getProducts)
-  .post(admin, createProduct);
+  .get(authorize('admin', 'manager'), getProducts)
+  .post(authorize('admin', 'manager'), createProduct); // Gestionnaire peut AJOUTER (POST)
 
 router.route('/:id')
-  .get(getProduct)
-  .put(admin, updateProduct)
-  .delete(admin, deleteProduct);
+  .get(authorize('admin', 'manager'), getProduct)
+  .put(authorize('admin'), updateProduct)      // Seul ADMIN peut MODIFIER
+  .delete(authorize('admin'), deleteProduct);   // Seul ADMIN peut SUPPRIMER
 
 module.exports = router;

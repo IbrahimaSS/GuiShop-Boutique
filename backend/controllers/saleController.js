@@ -115,6 +115,17 @@ const createSale = async (req, res) => {
       });
     }
 
+    // Envoyer une notification en temps réel si c'est un gestionnaire
+    if (req.user && req.user.role === 'manager') {
+      req.io.emit('notification', {
+        title: 'Nouvelle Vente',
+        message: `${req.user.fullName} a effectué une vente de ${totalAmount.toLocaleString()} GNF`,
+        type: 'sale',
+        user: req.user.fullName,
+        time: new Date()
+      });
+    }
+
     res.status(201).json({ success: true, data: sale });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
