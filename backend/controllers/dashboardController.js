@@ -13,8 +13,11 @@ const getStats = async (req, res) => {
   try {
     const today = new Date().setHours(0,0,0,0);
 
-    // Today's Sales
-    const todaySales = await Sale.find({ createdAt: { $gte: today } });
+    // Today's Sales (Only approved)
+    const todaySales = await Sale.find({ 
+      createdAt: { $gte: today },
+      validationStatus: 'approved' 
+    });
     const todayRevenue = todaySales.reduce((acc, sale) => acc + sale.totalAmount, 0);
 
     // Total Debts (remaining)
@@ -29,8 +32,10 @@ const getStats = async (req, res) => {
     // Low Stock Alert
     const lowStockCount = await Product.countDocuments({ status: { $ne: 'in_stock' } });
 
-    // Recent Sales for feed
-    const recentSales = await Sale.find().sort('-createdAt').limit(5).populate('createdBy', 'username fullName');
+    // Recent Sales for feed (Only approved)
+    const recentSales = await Sale.find({ 
+      validationStatus: 'approved' 
+    }).sort('-createdAt').limit(5).populate('createdBy', 'username fullName');
 
     res.json({
       success: true,
@@ -51,7 +56,7 @@ const getStats = async (req, res) => {
 
 const getFinancialReport = async (req, res) => {
   try {
-    const sales = await Sale.find();
+    const sales = await Sale.find({ validationStatus: 'approved' });
     const totalRevenue = sales.reduce((acc, sale) => acc + (sale.totalAmount || 0), 0);
     
     const debts = await Debt.find({ status: { $ne: 'paid' } });

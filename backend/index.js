@@ -67,6 +67,8 @@ app.use('/api/expenses', require('./routes/expenses.routes'));
 app.use('/api/activities', require('./routes/activities.routes'));
 app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/settings', require('./routes/setting.routes'));
+app.use('/api/stock-requests', require('./routes/stockRequests.routes'));
+app.use('/api/reports', require('./routes/reports.routes'));
 
 // Static Folders
 app.use('/uploads', express.static('uploads'));

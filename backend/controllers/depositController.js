@@ -17,7 +17,7 @@ const getDeposits = async (req, res) => {
 // @access  Private
 const createDeposit = async (req, res) => {
   try {
-    const { itemName, ownerName, ownerPhone, expectedReturnDate, description } = req.body;
+    const { itemName, ownerName, ownerPhone, expectedReturnDate, description, category, amount } = req.body;
 
     // Handle photo if uploaded
     let photo = '';
@@ -26,11 +26,13 @@ const createDeposit = async (req, res) => {
     }
 
     const deposit = await Deposit.create({
-      itemName,
+      itemName: category === 'money' ? "Dépôt d'argent" : itemName,
       ownerName,
       ownerPhone,
       expectedReturnDate,
       description,
+      category: category || 'material',
+      amount: amount || 0,
       photo,
       createdBy: req.user.id
     });

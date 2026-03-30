@@ -20,9 +20,25 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Please add a purchase price'],
     default: 0,
   },
+  transportFees: {
+    type: Number,
+    default: 0,
+  },
+  handlingFees: {
+    type: Number,
+    default: 0,
+  },
   sellingPrice: {
     type: Number,
     required: [true, 'Please add a selling price'],
+    default: 0,
+  },
+  minSellingPrice: {
+    type: Number,
+    default: 0,
+  },
+  maxSellingPrice: {
+    type: Number,
     default: 0,
   },
   stock: {

@@ -19,10 +19,18 @@ const Products = () => {
     barcode: '',
     category: 'Tôles & Toitures',
     purchasePrice: '',
+    transportFees: 0,
+    handlingFees: 0,
     sellingPrice: '',
+    minSellingPrice: '',
+    maxSellingPrice: '',
     stock: '',
     alertThreshold: 5
   });
+
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [stockQuantity, setStockQuantity] = useState('');
 
   const fetchProducts = async () => {
     try {
@@ -51,7 +59,9 @@ const Products = () => {
     setEditingProduct(null);
     setFormData({
       name: '', barcode: '', category: 'Tôles & Toitures',
-      purchasePrice: '', sellingPrice: '', stock: '', alertThreshold: 5
+      purchasePrice: '', transportFees: 0, handlingFees: 0,
+      sellingPrice: '', minSellingPrice: '', maxSellingPrice: '',
+      stock: '', alertThreshold: 5
     });
     setShowAddModal(true);
   };
@@ -63,7 +73,11 @@ const Products = () => {
       barcode: product.barcode || '',
       category: product.category,
       purchasePrice: product.purchasePrice,
+      transportFees: product.transportFees || 0,
+      handlingFees: product.handlingFees || 0,
       sellingPrice: product.sellingPrice,
+      minSellingPrice: product.minSellingPrice || '',
+      maxSellingPrice: product.maxSellingPrice || '',
       stock: product.stock,
       alertThreshold: product.alertThreshold
     });
@@ -106,6 +120,24 @@ const Products = () => {
     setFormData(prev => ({ ...prev, barcode: random }));
   };
 
+  const handleStockRequest = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.post(`/products/${selectedProduct._id}/request-stock`, {
+        quantity: stockQuantity,
+        note: `Demande pour ${selectedProduct.name}`
+      });
+      toast.success("Demande de stock envoyée à l'Admin");
+      setShowStockModal(false);
+      setStockQuantity('');
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Erreur lors de la demande");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.barcode?.includes(searchTerm)
@@ -125,13 +157,15 @@ const Products = () => {
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Gérez votre catalogue de produits et surveillez les niveaux de stock en temps réel.</p>
         </div>
-        <button
-          onClick={handleOpenAdd}
-          className="bg-gradient-to-r from-royal-dark to-royal text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-royal/30 flex items-center gap-2 active:scale-95 group"
-        >
-          <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-          Ajouter un Produit
-        </button>
+        {isAdmin && (
+          <button
+            onClick={handleOpenAdd}
+            className="bg-gradient-to-r from-royal-dark to-royal text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-royal/30 flex items-center gap-2 active:scale-95 group"
+          >
+            <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+            Ajouter un Produit
+          </button>
+        )}
       </div>
 
       {/* Stats Quick View */}
@@ -224,12 +258,23 @@ const Products = () => {
                       )}
                     </td>
                     <td className="p-5 pr-8 text-right">
-                      {isAdmin && (
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                          <button onClick={() => handleOpenEdit(product)} className="p-2.5 text-slate-400 hover:text-royal hover:bg-royal/10 rounded-xl transition-all" title="Modifier"><Edit className="w-4 h-4" /></button>
-                          <button onClick={() => handleDelete(product._id)} className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Supprimer"><Trash2 className="w-4 h-4" /></button>
-                        </div>
-                      )}
+                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                        {!isAdmin && (
+                          <button 
+                            onClick={() => { setSelectedProduct(product); setShowStockModal(true); }} 
+                            className="p-2.5 text-slate-400 hover:text-royal hover:bg-royal/10 rounded-xl transition-all" 
+                            title="Demander du stock"
+                          >
+                            <ArrowUpCircle className="w-4 h-4" />
+                          </button>
+                        )}
+                        {isAdmin && (
+                          <>
+                            <button onClick={() => handleOpenEdit(product)} className="p-2.5 text-slate-400 hover:text-royal hover:bg-royal/10 rounded-xl transition-all" title="Modifier"><Edit className="w-4 h-4" /></button>
+                            <button onClick={() => handleDelete(product._id)} className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Supprimer"><Trash2 className="w-4 h-4" /></button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -297,19 +342,42 @@ const Products = () => {
                   </select>
                 </div>
 
-                <div className="p-6 bg-emerald-50/50 dark:bg-emerald-900/5 rounded-3xl border border-emerald-100 dark:border-emerald-900/20">
-                  <label className="text-[10px] font-black text-emerald-600 mb-2.5 block uppercase tracking-tighter">Coût d'Achat</label>
-                  <div className="relative">
-                    <ArrowDownCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5" />
-                    <input type="number" name="purchasePrice" required value={formData.purchasePrice} onChange={handleInputChange} placeholder="0" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-emerald-900/40 rounded-2xl py-4 pl-12 pr-4 outline-none text-sm font-black dark:text-white" />
+                <div className="p-5 bg-emerald-50/50 dark:bg-emerald-900/5 rounded-3xl border border-emerald-100 dark:border-emerald-900/20">
+                  <label className="text-[10px] font-black text-emerald-600 mb-2.5 block uppercase tracking-tighter">Prix d'Achat</label>
+                  <input type="number" name="purchasePrice" required value={formData.purchasePrice} onChange={handleInputChange} placeholder="0" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-emerald-900/40 rounded-2xl py-3 px-4 outline-none text-sm font-black dark:text-white" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <label className="text-[9px] font-black text-slate-400 mb-2 block uppercase">Transport</label>
+                    <input type="number" name="transportFees" value={formData.transportFees} onChange={handleInputChange} placeholder="0" className="w-full bg-transparent outline-none text-sm font-bold dark:text-white" />
+                  </div>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <label className="text-[9px] font-black text-slate-400 mb-2 block uppercase">Manutention</label>
+                    <input type="number" name="handlingFees" value={formData.handlingFees} onChange={handleInputChange} placeholder="0" className="w-full bg-transparent outline-none text-sm font-bold dark:text-white" />
                   </div>
                 </div>
 
-                <div className="p-6 bg-royal/5 dark:bg-royal/10 rounded-3xl border border-royal/10">
-                  <label className="text-[10px] font-black text-royal mb-2.5 block uppercase tracking-tighter">Prix de Vente</label>
-                  <div className="relative">
-                    <ArrowUpCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-royal w-5 h-5" />
-                    <input type="number" name="sellingPrice" required value={formData.sellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-royal/40 rounded-2xl py-4 pl-12 pr-4 outline-none text-sm font-black dark:text-white" />
+                <div className="md:col-span-2 p-4 bg-gold/5 dark:bg-gold/10 rounded-2xl border border-gold/10 flex justify-between items-center">
+                  <span className="text-[10px] font-black text-gold-dark uppercase tracking-widest">Coût Global Estimé</span>
+                  <span className="text-lg font-black text-gold-dark">
+                    {formatCurrency(Number(formData.purchasePrice || 0) + Number(formData.transportFees || 0) + Number(formData.handlingFees || 0))}
+                  </span>
+                </div>
+
+                <div className="p-5 bg-royal/5 dark:bg-royal/10 rounded-3xl border border-royal/10">
+                  <label className="text-[10px] font-black text-royal mb-2.5 block uppercase tracking-tighter">Prix de Vente Actuel</label>
+                  <input type="number" name="sellingPrice" required value={formData.sellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-royal/40 rounded-2xl py-3 px-4 outline-none text-sm font-black dark:text-white" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <label className="text-[9px] font-black text-slate-400 mb-2 block uppercase">Prix Min</label>
+                    <input type="number" name="minSellingPrice" value={formData.minSellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-transparent outline-none text-sm font-bold dark:text-white" />
+                  </div>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <label className="text-[9px] font-black text-slate-400 mb-2 block uppercase">Prix Max</label>
+                    <input type="number" name="maxSellingPrice" value={formData.maxSellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-transparent outline-none text-sm font-bold dark:text-white" />
                   </div>
                 </div>
 
@@ -330,6 +398,27 @@ const Products = () => {
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : editingProduct ? 'Confirmer Maj' : 'Valider Article'}
                 </button>
               </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Modal Demande Stock */}
+      {showStockModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setShowStockModal(false)}>
+          <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] w-full max-w-md shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-royal-dark to-royal p-6 text-white flex justify-between items-center">
+              <h3 className="font-jakarta font-bold text-lg flex items-center gap-2"><ArrowUpCircle className="w-5 h-5" /> Réapprovisionnement</h3>
+              <button onClick={() => setShowStockModal(false)} className="p-2 hover:bg-white/20 rounded-xl transition-colors"><X className="w-5 h-5" /></button>
+            </div>
+            <form onSubmit={handleStockRequest} className="p-8 space-y-4">
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Produit : <span className="text-royal">{selectedProduct?.name}</span></p>
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Quantité à ajouter</label>
+                <input type="number" required value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 outline-none text-lg font-black dark:text-white" placeholder="0" />
+              </div>
+              <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-royal text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-royal/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Envoyer la Demande"}
+              </button>
             </form>
           </div>
         </div>

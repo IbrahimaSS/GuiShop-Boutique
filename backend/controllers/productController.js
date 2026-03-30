@@ -42,23 +42,50 @@ const getProduct = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     req.body.createdBy = req.user.id;
+    
+    // Auto-calculate alert threshold if not provided
+    if (!req.body.alertThreshold) req.body.alertThreshold = 5;
+
     const product = await Product.create(req.body);
     
     // Log Activity
-    await logActivity(req.user._id, `Produit créé : ${product.name}`, 'Product', product._id, req.ip);
-
-    // Envoyer une notification en temps réel si c'est un gestionnaire
-    if (req.user && req.user.role === 'manager') {
-      req.io.emit('notification', {
-        title: 'Nouveau Produit',
-        message: `${req.user.fullName} a ajouté : ${product.name}`,
-        type: 'product',
-        user: req.user.fullName,
-        time: new Date()
-      });
-    }
+    await logActivity(req.user._id, `Produit créé : ${product.name} (Prix Achat: ${product.purchasePrice}, Transport: ${product.transportFees})`, 'Product', product._id, req.ip);
 
     res.status(201).json({ success: true, data: product });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
+// @desc    Request stock increase (for managers)
+// @route   POST /api/products/:id/request-stock
+// @access  Private/Manager
+const requestStockUpdate = async (req, res) => {
+  try {
+    const { quantity, note } = req.body;
+    const Product = require('../models/Product');
+    const StockRequest = require('../models/StockRequest');
+
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ success: false, error: 'Produit non trouvé' });
+
+    const stockRequest = await StockRequest.create({
+      product: product._id,
+      quantity,
+      note,
+      requestedBy: req.user.id
+    });
+
+    // Notify Admin
+    req.io.emit('notification', {
+      title: 'Demande de Stock',
+      message: `${req.user.fullName} demande +${quantity} pour ${product.name}`,
+      type: 'stock_request',
+      user: req.user.fullName,
+      time: new Date()
+    });
+
+    res.status(201).json({ success: true, data: stockRequest });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -113,5 +140,6 @@ module.exports = {
   getProduct,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  requestStockUpdate
 };

@@ -12,6 +12,8 @@ import Users from './pages/Users';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Invoices from './pages/Invoices';
+import Reports from './pages/Reports';
+import Validations from './pages/Validations';
 import Login from './pages/Login';
 import { ToastProvider } from './context/ToastContext';
 import { SettingsProvider } from './context/SettingsContext';
@@ -134,6 +136,8 @@ const App = () => {
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<Profile />} />
               <Route path="invoices" element={<Invoices />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="validations" element={<Validations />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -10,7 +10,9 @@ import {
   Users,
   Settings as SettingsIcon,
   LogOut,
-  FileText
+  FileText,
+  BarChart3,
+  ClipboardCheck
 } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 
@@ -32,6 +34,8 @@ const Sidebar = ({ darkMode }) => {
     { name: 'Factures & Reçus', path: '/invoices', icon: FileText },
     // Menus restreints
     ...(isAdmin ? [
+      { name: 'Bilan Général', path: '/reports', icon: BarChart3 },
+      { name: 'Validations', path: '/validations', icon: ClipboardCheck },
       { name: 'Utilisateurs', path: '/users', icon: Users },
       { name: 'Paramètres', path: '/settings', icon: SettingsIcon },
     ] : []),

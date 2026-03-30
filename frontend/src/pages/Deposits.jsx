@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Search, Filter, Camera, Clock, CheckCircle, X, Upload, ImageIcon, Trash2, Loader2, Box, Package, Archive } from 'lucide-react';
+import { Plus, Search, Filter, Camera, Clock, CheckCircle, X, Upload, ImageIcon, Trash2, Loader2, Box, Package, Archive, CreditCard } from 'lucide-react';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 
@@ -19,7 +19,9 @@ const Deposits = () => {
     ownerName: '',
     ownerPhone: '',
     expectedReturnDate: '',
-    description: ''
+    description: '',
+    category: 'material',
+    amount: ''
   });
 
   const fileInputRef = useRef(null);
@@ -200,36 +202,54 @@ const Deposits = () => {
             
             <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 text-left">
               <div className="p-6 space-y-4">
-                <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Nom de l'objet *</label><input type="text" name="itemName" required value={newDeposit.itemName} onChange={handleInputChange} placeholder="Ex: PC Portable Dell" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal focus:ring-2 focus:ring-royal/20 rounded-xl py-3 px-4 outline-none transition-all text-sm dark:text-white" /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Propriétaire *</label><input type="text" name="ownerName" required value={newDeposit.ownerName} onChange={handleInputChange} placeholder="Nom" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal focus:ring-2 focus:ring-royal/20 rounded-xl py-3 px-4 outline-none transition-all text-sm dark:text-white" /></div>
-                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Téléphone</label><input type="text" name="ownerPhone" value={newDeposit.ownerPhone} onChange={handleInputChange} placeholder="+224..." className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal focus:ring-2 focus:ring-royal/20 rounded-xl py-3 px-4 outline-none transition-all text-sm dark:text-white" /></div>
+                <div className="flex gap-4 p-4 bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                  <label className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl cursor-pointer transition-all border-2 ${newDeposit.category === 'material' ? 'bg-white dark:bg-slate-800 border-royal shadow-md text-royal' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+                    <input type="radio" name="category" value="material" checked={newDeposit.category === 'material'} onChange={handleInputChange} className="hidden" />
+                    <Package className="w-4 h-4" /> <span className="text-xs font-black uppercase tracking-widest">Matériel</span>
+                  </label>
+                  <label className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl cursor-pointer transition-all border-2 ${newDeposit.category === 'money' ? 'bg-white dark:bg-slate-800 border-gold shadow-md text-gold-dark' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+                    <input type="radio" name="category" value="money" checked={newDeposit.category === 'money'} onChange={handleInputChange} className="hidden" />
+                    <CreditCard className="w-4 h-4" /> <span className="text-xs font-black uppercase tracking-widest">Argent</span>
+                  </label>
                 </div>
-                <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Date de retour prévue *</label><input type="date" name="expectedReturnDate" required value={newDeposit.expectedReturnDate} onChange={handleInputChange} className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal focus:ring-2 focus:ring-royal/20 rounded-xl py-3 px-4 outline-none transition-all text-sm dark:text-white" /></div>
 
-                {/* Photo Section */}
-                <div>
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Photo de l'équipement</label>
-                  {photoPreview ? (
-                    <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-600">
-                      <img src={photoPreview} alt="Preview" className="w-full h-48 object-cover" />
-                      <button type="button" onClick={() => { setPhotoPreview(null); setPhotoFile(null); }} className="absolute top-2 right-2 p-1.5 bg-white/90 dark:bg-slate-800/90 rounded-lg shadow-md hover:bg-white text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-3">
-                      <button type="button" onClick={() => cameraInputRef.current?.click()} className="border-2 border-dashed border-royal/30 dark:border-royal/40 text-royal dark:text-royal-light rounded-2xl p-6 flex flex-col items-center gap-2 hover:bg-royal/5 transition-all cursor-pointer">
-                        <Camera className="w-8 h-8" />
-                        <span className="text-xs font-semibold">Caméra</span>
-                      </button>
-                      <button type="button" onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gold/30 dark:border-gold/40 text-gold-dark dark:text-gold-light rounded-2xl p-6 flex flex-col items-center gap-2 hover:bg-gold/5 transition-all cursor-pointer">
-                        <Upload className="w-8 h-8" />
-                        <span className="text-xs font-semibold">Fichier</span>
-                      </button>
-                      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoCapture} className="hidden" />
-                      <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoCapture} className="hidden" />
-                    </div>
-                  )}
+                {newDeposit.category === 'material' ? (
+                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Nom de l'objet *</label><input type="text" name="itemName" required={newDeposit.category === 'material'} value={newDeposit.itemName} onChange={handleInputChange} placeholder="Ex: PC Portable Dell" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal rounded-xl py-3 px-4 text-sm dark:text-white" /></div>
+                ) : (
+                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Montant Confié *</label><input type="number" name="amount" required={newDeposit.category === 'money'} value={newDeposit.amount} onChange={handleInputChange} placeholder="Ex: 500000" className="w-full bg-slate-50 dark:bg-slate-900 border border-gold-dark/30 focus:border-gold rounded-xl py-3 px-4 font-black text-lg text-gold-dark transition-all" /></div>
+                )}
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Propriétaire *</label><input type="text" name="ownerName" required value={newDeposit.ownerName} onChange={handleInputChange} placeholder="Nom" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal rounded-xl py-3 px-4 text-sm dark:text-white" /></div>
+                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Téléphone</label><input type="text" name="ownerPhone" value={newDeposit.ownerPhone} onChange={handleInputChange} placeholder="+224..." className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal rounded-xl py-3 px-4 text-sm dark:text-white" /></div>
                 </div>
+                <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Restitution prévue *</label><input type="date" name="expectedReturnDate" required value={newDeposit.expectedReturnDate} onChange={handleInputChange} className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal rounded-xl py-3 px-4 text-sm dark:text-white" /></div>
+
+                {/* Photo Section (Only for material) */}
+                {newDeposit.category === 'material' && (
+                  <div>
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Photo de l'équipement</label>
+                    {photoPreview ? (
+                      <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-600">
+                        <img src={photoPreview} alt="Preview" className="w-full h-48 object-cover" />
+                        <button type="button" onClick={() => { setPhotoPreview(null); setPhotoFile(null); }} className="absolute top-2 right-2 p-1.5 bg-white/90 dark:bg-slate-800/90 rounded-lg shadow-md hover:bg-white text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-3">
+                        <button type="button" onClick={() => cameraInputRef.current?.click()} className="border-2 border-dashed border-royal/30 dark:border-royal/40 text-royal dark:text-royal-light rounded-2xl p-6 flex flex-col items-center gap-2 hover:bg-royal/5 transition-all cursor-pointer">
+                          <Camera className="w-8 h-8" />
+                          <span className="text-xs font-semibold">Caméra</span>
+                        </button>
+                        <button type="button" onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gold/30 dark:border-gold/40 text-gold-dark dark:text-gold-light rounded-2xl p-6 flex flex-col items-center gap-2 hover:bg-gold/5 transition-all cursor-pointer">
+                          <Upload className="w-8 h-8" />
+                          <span className="text-xs font-semibold">Fichier</span>
+                        </button>
+                        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoCapture} className="hidden" />
+                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoCapture} className="hidden" />
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Description / État</label><textarea name="description" value={newDeposit.description} onChange={handleInputChange} placeholder="Description de l'état de l'objet..." className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal focus:ring-2 focus:ring-royal/20 rounded-xl py-3 px-4 outline-none transition-all text-sm dark:text-white resize-none h-20"></textarea></div>
               </div>
               <div className="p-6 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 bg-slate-50 dark:bg-slate-900/50 flex-shrink-0">

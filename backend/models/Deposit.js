@@ -11,6 +11,15 @@ const depositSchema = new mongoose.Schema({
     required: [true, 'Please add an owner name'],
   },
   ownerPhone: String,
+  category: {
+    type: String,
+    enum: ['material', 'money'],
+    default: 'material',
+  },
+  amount: {
+    type: Number,
+    default: 0,
+  },
   description: String,
   photo: String, // URL/Path to equipment photo
   depositDate: {

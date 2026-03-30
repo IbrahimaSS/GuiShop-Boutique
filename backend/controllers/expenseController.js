@@ -27,6 +27,10 @@ const createExpense = async (req, res) => {
       createdBy: req.user.id
     });
 
+    // Log Activity
+    const logActivity = require('../utils/activityLogger');
+    await logActivity(req.user.id, `Dépense enregistrée : ${title} (${amount.toLocaleString()} GNF)`, 'Expense', expense._id, req.ip);
+
     // Envoyer une notification en temps réel si c'est un gestionnaire
     if (req.user && req.user.role === 'manager') {
       req.io.emit('notification', {

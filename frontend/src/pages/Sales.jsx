@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingBag, Plus, Minus, Trash2, CreditCard, User, ScanLine, X, Loader2, CheckCircle2 } from 'lucide-react';
+import { Search, ShoppingBag, Plus, Minus, Trash2, CreditCard, User, ScanLine, X, Loader2, CheckCircle2, Clock } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
@@ -17,8 +17,12 @@ const Sales = () => {
   const [clientInfo, setClientInfo] = useState({
     name: '',
     phone: '',
-    dueDate: ''
+    dueDate: '',
+    status: 'completed'
   });
+
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = user.role === 'admin';
 
   const fetchProducts = async () => {
     try {
@@ -62,7 +66,7 @@ const Sales = () => {
   };
 
   const removeFromCart = (productId) => setCart(cart.filter(item => item.product._id !== productId));
-  const totalAmount = cart.reduce((sum, item) => sum + (item.product.sellingPrice * item.quantity), 0);
+  const totalAmount = cart.reduce((sum, item) => sum + ((item.price || item.product.sellingPrice) * item.quantity), 0);
 
   const handleCheckout = async (paymentType) => {
     if (cart.length === 0) return;
@@ -78,19 +82,23 @@ const Sales = () => {
   const processSale = async (paymentType) => {
     setIsSubmitting(true);
     try {
-      const calculatedTotal = cart.reduce((sum, item) => sum + (item.product.sellingPrice * item.quantity), 0);
+      const calculatedTotal = cart.reduce((sum, item) => sum + ((item.price || item.product.sellingPrice) * item.quantity), 0);
       
       const saleData = {
-        items: cart.map(item => ({
-          product: item.product._id,
-          name: item.product.name,
-          quantity: item.quantity,
-          price: item.product.sellingPrice,
-          totalPrice: item.quantity * item.product.sellingPrice
-        })),
+        items: cart.map(item => {
+          const unitPrice = item.price || item.product.sellingPrice;
+          return {
+            product: item.product._id,
+            name: item.product.name,
+            quantity: item.quantity,
+            price: unitPrice,
+            totalPrice: item.quantity * unitPrice
+          };
+        }),
         subTotal: calculatedTotal,
         totalAmount: calculatedTotal,
         paymentType,
+        status: clientInfo.status,
         ...(clientInfo.name ? { 
           clientName: clientInfo.name, 
           clientPhone: clientInfo.phone,
@@ -99,9 +107,9 @@ const Sales = () => {
       };
 
       const { data } = await api.post('/sales', saleData);
-      toast.success(`Encaissement validé ! Facture: ${data.invoice?.invoiceNumber || data.data.saleNumber}`);
+      toast.success(isAdmin ? `Encaissement validé !` : "Vente soumise pour approbation !");
       setCart([]);
-      setClientInfo({ name: '', phone: '', dueDate: '' }); // Clear info after success
+      setClientInfo({ name: '', phone: '', dueDate: '', status: 'completed' }); 
       setShowCreditModal(false);
       fetchProducts(); // Refresh stocks
     } catch (err) {
@@ -209,7 +217,21 @@ const Sales = () => {
               <div key={item.product._id} className="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-600 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-slate-800 dark:text-white truncate text-sm">{item.product.name}</div>
-                  <div className="text-sm font-bold text-royal dark:text-royal-light">{formatCurrency(item.product.sellingPrice)}</div>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="number" 
+                      value={item.price || item.product.sellingPrice} 
+                      onChange={(e) => {
+                        const newPrice = Number(e.target.value);
+                        setCart(cart.map(c => c.product._id === item.product._id ? { ...c, price: newPrice } : c));
+                      }}
+                      className="w-20 bg-transparent font-bold text-royal dark:text-royal-light outline-none border-b border-royal/20 focus:border-royal"
+                    />
+                    <span className="text-[9px] text-slate-400">PU</span>
+                  </div>
+                  {item.product.minSellingPrice && (
+                    <div className="text-[8px] text-slate-400">Min: {item.product.minSellingPrice} | Max: {item.product.maxSellingPrice || '∞'}</div>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 bg-white dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-600">
                   <button onClick={() => updateQuantity(item.product._id, -1)} className="p-1 text-slate-400 hover:text-royal rounded"><Minus className="w-4 h-4" /></button>
@@ -249,7 +271,30 @@ const Sales = () => {
           </div>
         )}
 
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-5 border-t border-slate-100 dark:border-slate-700">
+          <div className="space-y-3">
+             <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Statut Logistique</div>
+             <select 
+               value={clientInfo.status} 
+               onChange={(e) => setClientInfo({...clientInfo, status: e.target.value})}
+               className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl py-2 px-3 text-sm dark:text-white mb-2 outline-none focus:border-royal"
+             >
+               <option value="completed">Vente Standard</option>
+               <option value="payer_livrer">Payé & Livré</option>
+               <option value="livrer_payer">Livré & Payé</option>
+               <option value="non_payer_livrer">Non Payé Livré</option>
+             </select>
+
+             {!isAdmin && (
+               <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-3 rounded-xl mb-4">
+                 <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase leading-tight flex items-center gap-1">
+                   <Clock className="w-3 h-3" /> Approbation requise
+                 </p>
+                 <p className="text-[10px] text-amber-500/70 mt-0.5">La vente sera soumise à l'Admin pour validation.</p>
+               </div>
+             )}
+          </div>
+
+          <div className="bg-slate-50 dark:bg-slate-900/50 p-5 border-t border-slate-100 dark:border-slate-700">
           <div className="flex justify-between items-end mb-4">
             <span className="text-slate-500 dark:text-slate-400 font-medium">Total</span>
             <span className="text-3xl font-extrabold font-jakarta text-royal-dark dark:text-white truncate">{formatCurrency(totalAmount)}</span>
