@@ -53,9 +53,9 @@ const Login = () => {
           <div className="p-8 pb-4 text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-600 to-blue-800 shadow-xl shadow-blue-500/30 mb-6 group transition-transform hover:scale-110 duration-500 overflow-hidden border-2 border-white/20">
               {settings?.logo ? (
-                <img 
-                  src={`${API_URL}${settings.logo}`} 
-                  alt="Logo" 
+                <img
+                  src={`${API_URL}${settings.logo}`}
+                  alt="Logo"
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -66,7 +66,7 @@ const Login = () => {
               {settings?.shopName || "PROJET GB"}
             </h1>
             <p className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 dark:text-slate-500 mt-2 italic">
-              Excellence in Management
+              Excellence en Vente
             </p>
           </div>
 
@@ -138,7 +138,7 @@ const Login = () => {
           {/* Footer Branding */}
           <div className="p-6 text-center border-t border-slate-100 dark:border-slate-800">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose italic">
-              © {new Date().getFullYear()} {settings?.shopName || "GUITECII"} — Développé avec Passion
+              © {new Date().getFullYear()} {settings?.shopName || "GUITECII"} — Développé par Code Genius
             </span>
           </div>
         </div>

@@ -149,10 +149,10 @@ const Invoices = () => {
             <input type="text" placeholder="Rechercher par N° facture, client..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 focus:border-royal focus:ring-2 focus:ring-royal/20 rounded-xl py-2.5 pl-12 pr-4 outline-none transition-all text-sm dark:text-white" />
           </div>
           <div className="flex items-center gap-2">
-            {['all', 'paid', 'pending'].map(status => (
+            {['all', 'standard', 'paid_undelivered', 'unpaid_delivered'].map(status => (
               <button key={status} onClick={() => setFilterStatus(status)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${filterStatus === status ? 'bg-royal text-white shadow-sm' : 'bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
-                {status === 'all' ? 'Tous' : status === 'paid' ? 'Payées' : 'En attente'}
+                className={`px-4 py-2 rounded-xl text-[10px] uppercase tracking-tighter font-black transition-all ${filterStatus === status ? 'bg-royal text-white shadow-sm' : 'bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                {status === 'all' ? 'Tous' : status === 'standard' ? 'Standard' : status === 'paid_undelivered' ? 'Payé non livré' : 'Non Payé Livré'}
               </button>
             ))}
           </div>
@@ -186,10 +186,12 @@ const Invoices = () => {
                     <td className="p-4 font-bold text-slate-800 dark:text-white text-sm">{formatCurrency(inv.totalAmount)}</td>
                     <td className="p-4 text-sm"><div className="flex items-center gap-2 text-slate-500 dark:text-slate-400"><Calendar className="w-4 h-4" />{new Date(inv.createdAt).toLocaleDateString('fr-FR')}</div></td>
                     <td className="p-4">
-                      {inv.status === 'paid' ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"><CheckCircle className="w-3.5 h-3.5" /> Payée</span>
+                      {inv.status === 'standard' || inv.status === 'paid' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200/50"><CheckCircle className="w-3 h-3" /> Standard</span>
+                      ) : inv.status === 'paid_undelivered' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase bg-royal/10 text-royal dark:bg-royal/20 dark:text-royal-light border border-royal/20"><Clock className="w-3 h-3" /> Payé Non Livré</span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gold/10 text-gold-dark dark:bg-gold/20 dark:text-gold-light"><Clock className="w-3.5 h-3.5" /> En attente</span>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase bg-gold/10 text-gold-dark dark:bg-gold/20 dark:text-gold-light border border-gold/20"><FileText className="w-3 h-3" /> Non Payé Livré</span>
                       )}
                     </td>
                     <td className="p-4 pr-6 text-right">

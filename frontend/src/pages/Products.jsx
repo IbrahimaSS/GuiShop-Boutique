@@ -4,6 +4,16 @@ import { formatCurrency } from '../utils/formatters';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 
+const PREDEFINED_CATEGORIES = [
+  'Tôles & Toitures',
+  'Plafonds & Déco',
+  'Fer à Béton & Aciers',
+  'Outillage & Pinces',
+  'Ciment & Granulats',
+  'Peintures & Finitions',
+  'Électricité & Plomberie'
+];
+
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -12,6 +22,7 @@ const Products = () => {
   const [error, setError] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
   const toast = useToast();
 
   const [formData, setFormData] = useState({
@@ -21,7 +32,6 @@ const Products = () => {
     purchasePrice: '',
     transportFees: 0,
     handlingFees: 0,
-    sellingPrice: '',
     minSellingPrice: '',
     maxSellingPrice: '',
     stock: '',
@@ -60,39 +70,48 @@ const Products = () => {
     setFormData({
       name: '', barcode: '', category: 'Tôles & Toitures',
       purchasePrice: '', transportFees: 0, handlingFees: 0,
-      sellingPrice: '', minSellingPrice: '', maxSellingPrice: '',
+      minSellingPrice: '', maxSellingPrice: '',
       stock: '', alertThreshold: 5
     });
+    setCustomCategory('');
     setShowAddModal(true);
   };
 
   const handleOpenEdit = (product) => {
     setEditingProduct(product);
+    
+    const isPredefined = PREDEFINED_CATEGORIES.includes(product.category);
+    
     setFormData({
       name: product.name,
       barcode: product.barcode || '',
-      category: product.category,
+      category: isPredefined ? product.category : 'Autres Matériaux',
       purchasePrice: product.purchasePrice,
       transportFees: product.transportFees || 0,
       handlingFees: product.handlingFees || 0,
-      sellingPrice: product.sellingPrice,
       minSellingPrice: product.minSellingPrice || '',
       maxSellingPrice: product.maxSellingPrice || '',
       stock: product.stock,
       alertThreshold: product.alertThreshold
     });
+    setCustomCategory(isPredefined ? '' : product.category);
     setShowAddModal(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const dataToSubmit = {
+      ...formData,
+      category: formData.category === 'Autres Matériaux' ? customCategory : formData.category
+    };
+
     try {
       if (editingProduct) {
-        await api.put(`/products/${editingProduct._id}`, formData);
+        await api.put(`/products/${editingProduct._id}`, dataToSubmit);
         toast.success("Produit mis à jour avec succès !");
       } else {
-        await api.post('/products', formData);
+        await api.post('/products', dataToSubmit);
         toast.success("Produit ajouté au catalogue !");
       }
       setShowAddModal(false);
@@ -202,7 +221,7 @@ const Products = () => {
               <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em]">
                 <th className="p-5 pl-8">Désignation Produit</th>
                 <th className="p-5">Classification</th>
-                <th className="p-5 text-right">P. Unitaire</th>
+                <th className="p-5 text-right">Prix de Vente</th>
                 <th className="p-5 text-center">Niveau Stock</th>
                 <th className="p-5">État</th>
                 <th className="p-5 pr-8 text-right">Actions</th>
@@ -236,7 +255,7 @@ const Products = () => {
                       </span>
                     </td>
                     <td className="p-5 text-right font-black text-slate-800 dark:text-white text-sm">
-                      {formatCurrency(product.sellingPrice)}
+                      {formatCurrency(product.maxSellingPrice)}
                     </td>
                     <td className="p-5 text-center">
                       <div className="flex flex-col items-center">
@@ -331,15 +350,25 @@ const Products = () => {
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block">Famille de Produit</label>
                   <select name="category" value={formData.category} onChange={handleInputChange} className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 outline-none text-sm font-bold dark:text-white cursor-pointer border-l-4 border-l-royal">
-                    <option>Tôles & Toitures</option>
-                    <option>Plafonds & Déco</option>
-                    <option>Fer à Béton & Aciers</option>
-                    <option>Outillage & Pinces</option>
-                    <option>Ciment & Granulats</option>
-                    <option>Peintures & Finitions</option>
-                    <option>Électricité & Plomberie</option>
+                    {PREDEFINED_CATEGORIES.map(cat => (
+                      <option key={cat}>{cat}</option>
+                    ))}
                     <option>Autres Matériaux</option>
                   </select>
+                  
+                  {formData.category === 'Autres Matériaux' && (
+                    <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <label className="text-[9px] font-black text-royal uppercase tracking-[0.1em] mb-2 block">Précisez la catégorie</label>
+                      <input 
+                        type="text" 
+                        required
+                        placeholder="Ex: Sanitaires, Menuiserie..."
+                        value={customCategory}
+                        onChange={(e) => setCustomCategory(e.target.value)}
+                        className="w-full bg-royal/[0.03] dark:bg-royal/5 border-2 border-royal/20 rounded-xl py-3 px-4 outline-none focus:border-royal transition-all text-sm font-bold dark:text-white"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-5 bg-emerald-50/50 dark:bg-emerald-900/5 rounded-3xl border border-emerald-100 dark:border-emerald-900/20">
@@ -365,30 +394,26 @@ const Products = () => {
                   </span>
                 </div>
 
-                <div className="p-5 bg-royal/5 dark:bg-royal/10 rounded-3xl border border-royal/10">
-                  <label className="text-[10px] font-black text-royal mb-2.5 block uppercase tracking-tighter">Prix de Vente Actuel</label>
-                  <input type="number" name="sellingPrice" required value={formData.sellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-royal/40 rounded-2xl py-3 px-4 outline-none text-sm font-black dark:text-white" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <label className="text-[9px] font-black text-slate-400 mb-2 block uppercase">Prix Min</label>
-                    <input type="number" name="minSellingPrice" value={formData.minSellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-transparent outline-none text-sm font-bold dark:text-white" />
+                <div className="grid grid-cols-2 gap-4 md:col-span-2">
+                  <div className="p-4 bg-royal/5 dark:bg-royal/10 rounded-2xl border border-royal/10">
+                    <label className="text-[9px] font-black text-royal mb-2 block uppercase">Prix de Vente MIN</label>
+                    <input type="number" name="minSellingPrice" required value={formData.minSellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-royal/30 rounded-xl py-2 px-3 outline-none text-sm font-bold dark:text-white" />
                   </div>
-                  <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <label className="text-[9px] font-black text-slate-400 mb-2 block uppercase">Prix Max</label>
-                    <input type="number" name="maxSellingPrice" value={formData.maxSellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-transparent outline-none text-sm font-bold dark:text-white" />
+                  <div className="p-4 bg-royal/5 dark:bg-royal/10 rounded-2xl border border-royal/10">
+                    <label className="text-[9px] font-black text-royal mb-2 block uppercase">Prix de Vente MAX</label>
+                    <input type="number" name="maxSellingPrice" required value={formData.maxSellingPrice} onChange={handleInputChange} placeholder="0" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-royal/30 rounded-xl py-2 px-3 outline-none text-sm font-bold dark:text-white" />
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block">Stock Initial</label>
-                  <input type="number" name="stock" required value={formData.stock} onChange={handleInputChange} placeholder="0" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 outline-none text-sm font-black dark:text-white" />
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block">Seuil d'Alerte</label>
-                  <input type="number" name="alertThreshold" value={formData.alertThreshold} onChange={handleInputChange} placeholder="5" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 outline-none text-sm font-black dark:text-white" />
+                <div className="grid grid-cols-2 gap-6 md:col-span-2">
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block">Stock Initial</label>
+                    <input type="number" name="stock" required value={formData.stock} onChange={handleInputChange} placeholder="0" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 outline-none text-sm font-black dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block">Seuil d'Alerte</label>
+                    <input type="number" name="alertThreshold" value={formData.alertThreshold} onChange={handleInputChange} placeholder="5" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 outline-none text-sm font-black dark:text-white" />
+                  </div>
                 </div>
               </div>
 

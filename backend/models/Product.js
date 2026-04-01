@@ -28,17 +28,14 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  sellingPrice: {
-    type: Number,
-    required: [true, 'Please add a selling price'],
-    default: 0,
-  },
   minSellingPrice: {
     type: Number,
+    required: [true, 'Veuillez ajouter un prix de vente minimum'],
     default: 0,
   },
   maxSellingPrice: {
     type: Number,
+    required: [true, 'Veuillez ajouter un prix de vente maximum'],
     default: 0,
   },
   stock: {

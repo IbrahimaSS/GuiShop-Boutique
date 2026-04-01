@@ -30,44 +30,26 @@ const createSale = async (req, res) => {
       return res.status(400).json({ success: false, error: 'La vente doit contenir au moins un article' });
     }
 
-    // 1. Verify and update stock (Only if Admin or Auto-approval)
-    const isAdmin = req.user.role === 'admin';
-    const initialValidationStatus = isAdmin ? 'approved' : 'pending';
-
-    if (isAdmin) {
-      for (const item of items) {
-        const product = await Product.findById(item.product);
-        if (!product) {
-          return res.status(404).json({ success: false, error: `Produit non trouvé: ${item.name}` });
-        }
-        if (product.stock < item.quantity) {
-          return res.status(400).json({ success: false, error: `Stock insuffisant pour ${product.name}` });
-        }
-
-        // Price Interval Validation
-        if (product.minSellingPrice && item.price < product.minSellingPrice) {
-          return res.status(400).json({ success: false, error: `Le prix pour ${product.name} est trop bas (Min: ${product.minSellingPrice})` });
-        }
-        if (product.maxSellingPrice && item.price > product.maxSellingPrice) {
-          return res.status(400).json({ success: false, error: `Le prix pour ${product.name} est trop élevé (Max: ${product.maxSellingPrice})` });
-        }
-
-        product.stock -= item.quantity;
-        await product.save();
+    // 1. Verify and update stock (Now automatic for everyone)
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return res.status(404).json({ success: false, error: `Produit non trouvé: ${item.name}` });
       }
-    } else {
-       // Check price interval even for non-admin (manager)
-       for (const item of items) {
-         const product = await Product.findById(item.product);
-         if (product) {
-            if (product.minSellingPrice && item.price < product.minSellingPrice) {
-              return res.status(400).json({ success: false, error: `Le prix pour ${product.name} est trop bas (Min: ${product.minSellingPrice})` });
-            }
-            if (product.maxSellingPrice && item.price > product.maxSellingPrice) {
-              return res.status(400).json({ success: false, error: `Le prix pour ${product.name} est trop élevé (Max: ${product.maxSellingPrice})` });
-            }
-         }
-       }
+      if (product.stock < item.quantity) {
+        return res.status(400).json({ success: false, error: `Stock insuffisant pour ${product.name}` });
+      }
+
+      // Price Validation (Maximum Selling Price)
+      if (product.maxSellingPrice && item.price > product.maxSellingPrice) {
+        return res.status(400).json({ 
+          success: false, 
+          error: `Le prix pour ${product.name} (${item.price}) dépasse le prix maximum autorisé (${product.maxSellingPrice})` 
+        });
+      }
+
+      product.stock -= item.quantity;
+      await product.save();
     }
 
     // 2. Create Sale
@@ -77,77 +59,75 @@ const createSale = async (req, res) => {
       clientName,
       clientPhone,
       discount,
-      status: req.body.status || 'completed', // Can be payer_livrer etc
+      status: req.body.status || 'standard',
       tax,
       subTotal,
       totalAmount,
-      validationStatus: initialValidationStatus,
+      validationStatus: 'approved',
       createdBy: req.user.id
     });
 
-    // 3. Automated documents (Only if approved)
-    if (isAdmin) {
-      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const invoiceCount = await Invoice.countDocuments();
-      const invoiceNumber = `FAC-${dateStr}-${(invoiceCount + 1).toString().padStart(4, '0')}`;
+    // 3. Automated documents (Now for everyone)
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const invoiceCount = await Invoice.countDocuments();
+    const invoiceNumber = `FAC-${dateStr}-${(invoiceCount + 1).toString().padStart(4, '0')}`;
 
-      const invoice = await Invoice.create({
-        invoiceNumber,
-        type: 'invoice',
+    const invoice = await Invoice.create({
+      invoiceNumber,
+      type: 'invoice',
+      clientName,
+      clientPhone,
+      items,
+      totalAmount,
+      status: paymentType === 'credit' ? 'pending' : 'paid',
+      sale: sale._id,
+      issuedBy: req.user.id
+    });
+
+    sale.invoiceId = invoice._id;
+    await sale.save();
+
+    if (paymentType === 'cash' || paymentType === 'transfer') {
+      const receiptNumber = `REC-${dateStr}-${(invoiceCount + 2).toString().padStart(4, '0')}`;
+      await Invoice.create({
+        invoiceNumber: receiptNumber,
+        type: 'receipt',
         clientName,
         clientPhone,
         items,
         totalAmount,
-        status: paymentType === 'credit' ? 'pending' : 'paid',
+        status: 'paid',
         sale: sale._id,
         issuedBy: req.user.id
       });
-
-      sale.invoiceId = invoice._id;
-      await sale.save();
-
-      if (paymentType === 'cash' || paymentType === 'transfer') {
-        const receiptNumber = `REC-${dateStr}-${(invoiceCount + 2).toString().padStart(4, '0')}`;
-        await Invoice.create({
-          invoiceNumber: receiptNumber,
-          type: 'receipt',
-          clientName,
-          clientPhone,
-          items,
-          totalAmount,
-          status: 'paid',
-          sale: sale._id,
-          issuedBy: req.user.id
-        });
-      } else if (paymentType === 'credit') {
-        await Debt.create({
-          clientName,
-          clientPhone,
-          totalAmount,
-          remainingAmount: totalAmount,
-          dueDate: dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          products: items.map(i => i.name).join(', '),
-          saleId: sale._id,
-          createdBy: req.user.id
-        });
-      }
+    } else if (paymentType === 'credit') {
+      await Debt.create({
+        clientName,
+        clientPhone,
+        totalAmount,
+        remainingAmount: totalAmount,
+        dueDate: dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        products: items.map(i => i.name).join(', '),
+        saleId: sale._id,
+        createdBy: req.user.id
+      });
     }
 
     // Log Activity
     await logActivity(
       req.user._id, 
-      `Nouvelle vente ${isAdmin ? 'enregistrée' : 'soumise pour validation'} : ${sale.totalAmount.toLocaleString()} GNF`, 
+      `Vente enregistrée par ${req.user.role === 'admin' ? 'Super Admin' : 'Gestionnaire'} : ${sale.totalAmount.toLocaleString()} GNF`, 
       'Sale', 
       sale._id, 
       req.ip
     );
 
-    // Notify Admin if manager
-    if (!isAdmin) {
+    // Notification informative pour l'admin (toujours utile pour le bip sonore !)
+    if (req.user.role !== 'admin') {
       req.io.emit('notification', {
-        title: 'Vente en attente',
-        message: `${req.user.fullName} a soumis une vente de ${totalAmount.toLocaleString()} GNF pour approbation`,
-        type: 'sale_pending',
+        title: 'Vente effectuée',
+        message: `${req.user.fullName} a réalisé une vente de ${totalAmount.toLocaleString()} GNF`,
+        type: 'sale_done',
         user: req.user.fullName,
         saleId: sale._id,
         time: new Date()

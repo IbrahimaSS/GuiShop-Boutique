@@ -111,8 +111,8 @@ const Settings = () => {
         "Stock": p.stock,
         "Unité": p.unit,
         "Prix d'achat": p.purchasePrice,
-        "Prix de vente": p.sellingPrice,
-        "Valeur Stock": p.stock * p.sellingPrice,
+        "Prix de vente": p.maxSellingPrice,
+        "Valeur Stock": p.stock * p.maxSellingPrice,
         "Alerte": p.stock <= p.minStock ? "OUI" : "NON"
       }));
 

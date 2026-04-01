@@ -53,13 +53,13 @@ const saleSchema = new mongoose.Schema({
   clientPhone: String,
   status: {
     type: String,
-    enum: ['completed', 'pending', 'cancelled', 'payer_livrer', 'livrer_payer', 'non_payer_livrer'],
-    default: 'completed'
+    enum: ['standard', 'paid_undelivered', 'unpaid_delivered', 'cancelled'],
+    default: 'standard'
   },
   validationStatus: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'approved' // Default to approved (for admin), manager will create as pending
+    enum: ['approved'],
+    default: 'approved'
   },
   invoiceId: {
     type: mongoose.Schema.ObjectId,

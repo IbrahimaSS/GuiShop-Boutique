@@ -22,8 +22,11 @@ const getBilan = async (req, res) => {
 
     // 1. Stock Metrics (Always current)
     const allProducts = await Product.find(productId ? { _id: productId } : {});
-    const totalStockValue = allProducts.reduce((acc, p) => acc + (p.stock * (p.purchasePrice || 0)), 0);
-    const totalPotentialSales = allProducts.reduce((acc, p) => acc + (p.stock * (p.sellingPrice || 0)), 0);
+    const totalStockValue = allProducts.reduce((acc, p) => {
+      const unitCost = (p.purchasePrice || 0) + (p.transportFees || 0) + (p.handlingFees || 0);
+      return acc + (p.stock * unitCost);
+    }, 0);
+    const totalPotentialSales = allProducts.reduce((acc, p) => acc + (p.stock * (p.maxSellingPrice || 0)), 0);
     const totalItemsInStock = allProducts.reduce((acc, p) => acc + p.stock, 0);
 
     // 2. Sales & Profits
@@ -38,7 +41,7 @@ const getBilan = async (req, res) => {
     }
 
     const totalSales = sales.reduce((acc, s) => acc + s.totalAmount, 0);
-    const pendingSalesCount = sales.filter(s => s.validationStatus === 'pending').length;
+    const pendingSalesCount = 0; // Plus d'attente avec le nouveau flux
 
     // 3. Expenses
     const expenses = await Expense.find({ date: { $gte: startDate, $lte: endDate } });
@@ -61,7 +64,7 @@ const getBilan = async (req, res) => {
     let totalProfit = 0;
     const summaryMap = {};
     for (const sale of sales) {
-      if (sale.validationStatus === 'rejected') continue;
+      // Les ventes sont maintenant validées par défaut
 
       const dateStr = sale.createdAt.toISOString().split('T')[0];
       if (!summaryMap[dateStr]) summaryMap[dateStr] = { date: dateStr, total: 0, profit: 0 };
