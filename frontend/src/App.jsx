@@ -51,7 +51,7 @@ const NotificationHandler = () => {
   useEffect(() => {
     if (!isAdmin) return;
 
-    const socket = io('http://localhost:5000');
+    const socket = io((import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', ''));
 
     socket.on('notification', (data) => {
       // 1. Jouer le bip sonore

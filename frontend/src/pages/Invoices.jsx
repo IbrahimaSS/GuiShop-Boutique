@@ -5,7 +5,7 @@ import { useSettings } from '../context/SettingsContext';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
 
 const Invoices = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,7 +57,7 @@ const Invoices = () => {
   const handleDownloadPDF = (id) => {
     const token = localStorage.getItem('token');
     // Direct location change works better than window.open which can be blocked by browsers
-    window.location.href = `http://localhost:5000/api/invoices/${id}/pdf?token=${token}`;
+    window.location.href = `${API_URL}/api/invoices/${id}/pdf?token=${token}`;
   };
 
   const handlePrint = () => {

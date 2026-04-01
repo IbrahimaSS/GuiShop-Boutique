@@ -18,7 +18,7 @@ import { useSettings } from '../context/SettingsContext';
 
 const Sidebar = ({ darkMode }) => {
   const { settings } = useSettings();
-  const API_URL = 'http://localhost:5000';
+  const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
   
   // Récupérer l'utilisateur pour vérifier son rôle
   const user = JSON.parse(localStorage.getItem('user') || '{}');

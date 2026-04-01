@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Menu, UserCircle, Sun, Moon } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
 
 const Topbar = ({ toggleDarkMode, darkMode }) => {
   const navigate = useNavigate();

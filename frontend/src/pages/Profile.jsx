@@ -10,7 +10,7 @@ const Profile = () => {
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const fileInputRef = useRef(null);
-  const API_URL = 'http://localhost:5000';
+  const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
 
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || {});
   

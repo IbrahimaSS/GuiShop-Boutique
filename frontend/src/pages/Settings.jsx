@@ -14,7 +14,7 @@ const Settings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const { settings, refreshSettings, uploadLogo } = useSettings();
   const fileInputRef = useRef(null);
-  const API_URL = 'http://localhost:5000';
+  const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -135,7 +135,7 @@ const Settings = () => {
 
   const handleExportFinance = () => {
     const token = localStorage.getItem('token');
-    window.location.href = `http://localhost:5000/api/dashboard/report?token=${token}`;
+    window.location.href = `${API_URL}/api/dashboard/report?token=${token}`;
   };
 
   const handleUpdatePassword = async (e) => {
